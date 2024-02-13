@@ -18,8 +18,6 @@ export class CardPresenter extends Presenter {
 		super(model, events, modal);
 	}
 
-	initialize(): void {}
-
 	loadCards(): void {
 		this.model.cardCatalog.forEach((card) => {
 			const cardContentContainer = cloneTemplate(cardTemplate);

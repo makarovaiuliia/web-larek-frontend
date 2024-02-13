@@ -17,8 +17,6 @@ export class ShoppingListPresenter extends Presenter<ShoppingListView> {
     this.view.updateView(this.model.shoppingList);
 	}
 
-	initialize(): void {}
-
 	handleAddToShoppingList(item: IShoppingListItem): void {
 		this.model.addToShoppingList(item);
     this.view.updateView(this.model.shoppingList);

@@ -2,15 +2,10 @@ import { IProjectApi } from './ProjectApi';
 import { ICard, IOrderData, IShoppingListItem, ISuccessOrder } from '../types';
 import { IEvents } from './base/events';
 
-/* Интерфейс хранения данных всего приложения, включает в себя каталог
- всех карточек, массив добавленных в корзину товаров и данные заказа */
-
 export interface IAppModel {
-	projectAPI: IProjectApi;
 	cardCatalog: ICard[];
 	shoppingList: IShoppingListItem[];
 	order: IOrderData | null;
-	events: IEvents;
 
 	addToShoppingList(item: IShoppingListItem): void;
 	removeFromShoppingList(itemId: string): void;
@@ -19,11 +14,11 @@ export interface IAppModel {
 
 export class AppModel implements IAppModel {
 	// TODO: уточнить что тут protected
-	projectAPI: IProjectApi;
+	protected projectAPI: IProjectApi;
+	protected events: IEvents;
 	cardCatalog: ICard[] = [];
 	shoppingList: IShoppingListItem[] = [];
 	order: IOrderData | null = null;
-	events: IEvents;
 
 	constructor(projectApi: IProjectApi, events: IEvents) {
 		this.projectAPI = projectApi;

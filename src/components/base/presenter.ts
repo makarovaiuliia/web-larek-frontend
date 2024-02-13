@@ -13,8 +13,5 @@ export abstract class Presenter<T = undefined> {
 		this.events = events;
 		this.modal = modal;
 		this.view = view;
-		this.initialize();
 	}
-
-	protected abstract initialize(): void;
 }
