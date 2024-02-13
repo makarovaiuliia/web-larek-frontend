@@ -10,8 +10,11 @@ export interface IAppModel {
 	cardCatalog: ICard[];
 	shoppingList: IShoppingListItem[];
 	order: IOrderData | null;
-	openedCard: IShoppingListItem | null;
 	events: IEvents;
+
+	addToShoppingList(item: IShoppingListItem): void;
+	removeFromShoppingList(itemId: string): void;
+	ifExists(id: string): boolean;
 }
 
 export class AppModel implements IAppModel {
@@ -20,7 +23,6 @@ export class AppModel implements IAppModel {
 	cardCatalog: ICard[] = [];
 	shoppingList: IShoppingListItem[] = [];
 	order: IOrderData | null = null;
-	openedCard: IShoppingListItem | null = null;
 	events: IEvents;
 
 	constructor(projectApi: IProjectApi, events: IEvents) {
@@ -50,18 +52,26 @@ export class AppModel implements IAppModel {
 		const shoppingList = localStorage.getItem('shoppingList');
 		if (shoppingList) {
 			this.shoppingList = JSON.parse(shoppingList);
+		} else {
+			this.shoppingList = [];
 		}
-		this.shoppingList = [];
-		this.events.emit('shoppingList:fetched');
 	}
 
 	public addToShoppingList(item: IShoppingListItem): void {
-		this.shoppingList.push(item);
-		localStorage.setItem('shoppingList', JSON.stringify(this.shoppingList));
+		const exists = this.ifExists(item.id);
+
+		if (!exists) {
+			this.shoppingList.push(item);
+			localStorage.setItem('shoppingList', JSON.stringify(this.shoppingList));
+		}
+	}
+
+	public ifExists(id: string): boolean {
+		return this.shoppingList.some((existingItem) => existingItem.id === id);
 	}
 
 	public removeFromShoppingList(itemId: string): void {
-		this.shoppingList.filter((item) => item.id !== itemId);
+		this.shoppingList = this.shoppingList.filter((item) => item.id !== itemId);
 		localStorage.setItem('shoppingList', JSON.stringify(this.shoppingList));
 	}
 

@@ -1,8 +1,7 @@
 import { Presenter } from '../base/presenter';
 import { IAppModel } from '../AppModel';
-import { IModal, IModalData, Modal } from '../common/modal';
-import { Component } from '../base/component';
-import { ICard, IShoppingListItem } from '../../types';
+import { Modal } from '../common/modal';
+import { ICard } from '../../types';
 import { CardView } from '../view/cardView';
 import { cloneTemplate, ensureElement } from '../../utils/utils';
 import { IEvents } from '../base/events';
@@ -14,15 +13,9 @@ const cardContainer = ensureElement('.gallery');
 const cardTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardModal = ensureElement<HTMLTemplateElement>('#card-preview');
 
-export class CardPresenter extends Presenter<IAppModel, IEvents, Modal> {
-	events: IEvents;
-	modal: Modal;
-
+export class CardPresenter extends Presenter {
 	constructor(model: IAppModel, events: IEvents, modal: Modal) {
-		super(model);
-		this.events = events;
-		this.modal = modal;
-		this.initialize();
+		super(model, events, modal);
 	}
 
 	initialize(): void {}
@@ -35,20 +28,19 @@ export class CardPresenter extends Presenter<IAppModel, IEvents, Modal> {
 		});
 	}
 
-	handleAddToShoppingList(item: ICard): void {
-		
-	}
-
-	handleRemoveFromShoppingList(id: string): void {}
-
 	handleOpenModal(cardInfo: ICard): void {
-		this.model.openedCard = cardInfo;
-		const cardModalContainer = cloneTemplate(cardModal);
+		const exists = this.model.ifExists(cardInfo.id);
+
 		const cardPreview = new CardPreview(
-			cardModalContainer,
+			cloneTemplate(cardModal),
 			cardInfo,
 			this.events
 		);
+
+		if (exists) {
+			cardPreview.button = 'Убрать из корзины';
+		}
+
 		this.modal.render({
 			content: cardPreview.render(cardInfo),
 		});

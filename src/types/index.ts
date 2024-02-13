@@ -44,3 +44,5 @@ export interface ISuccessOrder {
   total: number;
   id: string;
 }
+
+export type ButtonState = 'В корзину' | 'Убрать из корзины';
