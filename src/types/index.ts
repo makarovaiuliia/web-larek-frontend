@@ -51,13 +51,12 @@ export interface IOrderData extends IOrderItems {
 	phone: string;
 }
 
+export type FormErrors = Partial<Record<keyof IOrderData, string>>;
+export type ButtonState = 'В корзину' | 'Убрать из корзины';
+
 /* Интерфейс удачного оформления заказа */
 
 export interface ISuccessOrder {
 	total: number;
 	id: string;
 }
-
-export type ButtonState = 'В корзину' | 'Убрать из корзины';
-
-export type FormErrors = Partial<Record<keyof IOrderData, string>>;

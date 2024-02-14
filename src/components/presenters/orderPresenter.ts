@@ -28,25 +28,30 @@ export class OrderPresenter extends Presenter<
 		successModal: SuccessModal
 	) {
 		super(model, events, modal, orderForm, contactsForm, successModal);
-		this.orderDetails = {
-			payment: '',
-			address: '',
-			email: '',
-			phone: '',
-			total: this.model.shoppingList.reduce((sum, item) => sum + item.price, 0),
-			items: this.model.shoppingList.map((item) => item.id),
-		};
 	}
 
 	handleOpenOrderForm() {
-		this.modal.render({
-			content: this.view.render({
-				address: '',
+		if (this.model.shoppingList.length > 0) {
+			this.orderDetails = {
 				payment: '',
-				valid: false,
-				errors: [],
-			}),
-		});
+				address: '',
+				email: '',
+				phone: '',
+				total: this.model.shoppingList.reduce(
+					(sum, item) => sum + item.price,
+					0
+				),
+				items: this.model.shoppingList.map((item) => item.id),
+			};
+			this.modal.render({
+				content: this.view.render({
+					address: '',
+					payment: '',
+					valid: false,
+					errors: [],
+				}),
+			});
+		}
 	}
 
 	handleOpenContactsForm() {
@@ -72,6 +77,7 @@ export class OrderPresenter extends Presenter<
 			this.orderDetails[field] = value as IOrderData[K];
 		}
 		this.validateOrder();
+		console.log(this.orderDetails);
 	}
 
 	validateOrder() {
