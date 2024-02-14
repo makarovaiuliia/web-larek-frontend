@@ -21,28 +21,43 @@ export interface IShoppingListItem {
 
 /* Интерфейс хранения данных заказа */
 
-type PaymentMethod = 'онлайн' | 'при получении';
+export type PaymentMethod = 'онлайн' | 'при получении' | '';
 
-interface IOrderForm {
-	payment: PaymentMethod;
+export interface IFormState {
+	valid: boolean;
+	errors: string[];
+}
+export interface IContactsForm extends IFormState {
 	email: string;
 	phone: string;
-	address: string;
+	render: (state: Partial<IContactsForm> & IFormState) => HTMLElement;
 }
 
-interface IOrderItems {
+export interface IOrderForm extends IFormState {
+	payment: PaymentMethod;
+	address: string;
+	render: (state: Partial<IOrderForm> & IFormState) => HTMLElement;
+}
+
+export interface IOrderItems {
 	total: number;
 	items: string[];
 }
 
-export interface IOrderData extends IOrderForm, IOrderItems {
+export interface IOrderData extends IOrderItems {
+	payment: PaymentMethod;
+	address: string;
+	email: string;
+	phone: string;
 }
 
 /* Интерфейс удачного оформления заказа */
 
 export interface ISuccessOrder {
-  total: number;
-  id: string;
+	total: number;
+	id: string;
 }
 
 export type ButtonState = 'В корзину' | 'Убрать из корзины';
+
+export type FormErrors = Partial<Record<keyof IOrderData, string>>;

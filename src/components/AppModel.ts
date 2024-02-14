@@ -10,10 +10,11 @@ export interface IAppModel {
 	addToShoppingList(item: IShoppingListItem): void;
 	removeFromShoppingList(itemId: string): void;
 	ifExists(id: string): boolean;
+	placeOrder(orderData: IOrderData): Promise<ISuccessOrder>;
+	clearShoppingList(): void;
 }
 
 export class AppModel implements IAppModel {
-	// TODO: уточнить что тут protected
 	protected projectAPI: IProjectApi;
 	protected events: IEvents;
 	cardCatalog: ICard[] = [];
@@ -70,13 +71,14 @@ export class AppModel implements IAppModel {
 		localStorage.setItem('shoppingList', JSON.stringify(this.shoppingList));
 	}
 
+	public clearShoppingList() {
+		this.shoppingList = [];
+		localStorage.setItem('shoppingList', JSON.stringify(this.shoppingList));
+	}
+
 	public placeOrder(orderData: IOrderData): Promise<ISuccessOrder> {
 		return this.projectAPI
 			.postOrder(orderData)
 			.then((data: ISuccessOrder) => data);
-	}
-
-	public emitChanges(event: string, payload?: object) {
-		this.events.emit(event, payload ?? {});
 	}
 }

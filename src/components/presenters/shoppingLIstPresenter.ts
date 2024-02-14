@@ -5,7 +5,6 @@ import { IShoppingListItem } from '../../types';
 import { IEvents } from '../base/events';
 import { ShoppingListView } from '../view/shoppingListView';
 
-
 export class ShoppingListPresenter extends Presenter<ShoppingListView> {
 	constructor(
 		model: IAppModel,
@@ -13,25 +12,27 @@ export class ShoppingListPresenter extends Presenter<ShoppingListView> {
 		modal: Modal,
 		view: ShoppingListView
 	) {
-    super(model, events, modal, view);
-    this.view.updateView(this.model.shoppingList);
+		super(model, events, modal, view);
+		this.view.updateView(this.model.shoppingList);
 	}
 
 	handleAddToShoppingList(item: IShoppingListItem): void {
 		this.model.addToShoppingList(item);
-    this.view.updateView(this.model.shoppingList);
+		this.view.updateView(this.model.shoppingList);
 	}
 
 	handleRemoveFromShoppingList(id: string): void {
 		this.model.removeFromShoppingList(id);
 		this.view.updateView(this.model.shoppingList);
-  }
+	}
 
-  handleOpenModal() {
-    this.modal.render({
-      content: this.view.render(),
+	handleOpenModal() {
+		this.modal.render({
+			content: this.view.render(),
 		});
-  }
+	}
 
-	handleOrderPlacement(): void {}
+	handleUpdateView() {
+		this.view.updateView(this.model.shoppingList);
+	}
 }
