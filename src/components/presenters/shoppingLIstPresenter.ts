@@ -17,22 +17,22 @@ export class ShoppingListPresenter extends Presenter<ShoppingListView> {
 	}
 
 	handleAddToShoppingList(item: IShoppingListItem): void {
-		this.model.addToShoppingList(item);
+		this._model.addToShoppingList(item);
 		this.handleUpdateView();
 	}
 
 	handleRemoveFromShoppingList(id: string): void {
-		this.model.removeFromShoppingList(id);
+		this._model.removeFromShoppingList(id);
 		this.handleUpdateView();
 	}
 
 	handleOpenModal() {
-		this.modal.render({
-			content: this.view.render(),
+		this._modal.render({
+			content: this._view.render(),
 		});
 	}
 
 	handleUpdateView() {
-		this.view.updateView(this.model.shoppingList);
+		this._view.updateView(this._model.shoppingList);
 	}
 }

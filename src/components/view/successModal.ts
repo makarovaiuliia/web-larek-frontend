@@ -3,9 +3,9 @@ import { Component } from '../base/component';
 import { IEvents } from '../base/events';
 
 export class SuccessModal extends Component<ISuccessOrder> {
-	descriptionElement: HTMLElement;
-	buttonElement: HTMLButtonElement;
-	events: IEvents;
+	private descriptionElement: HTMLElement;
+	private buttonElement: HTMLButtonElement;
+	private events: IEvents;
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);

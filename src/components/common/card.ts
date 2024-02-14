@@ -3,10 +3,10 @@ import { Component } from '../base/component';
 import { IEvents } from '../base/events';
 
 export class Card extends Component<ICard> {
-	private titleElement: HTMLElement;
-	private imageElement: HTMLImageElement;
-	private categoryElement: HTMLElement;
-	private priceElement: HTMLElement;
+	protected _titleElement: HTMLElement;
+	protected _imageElement: HTMLImageElement;
+	protected _categoryElement: HTMLElement;
+	protected _priceElement: HTMLElement;
 	public card: ICard;
 	events: IEvents;
 
@@ -14,30 +14,30 @@ export class Card extends Component<ICard> {
 		super(container);
 		this.card = card;
 		this.events = events;
-		this.titleElement = this.container.querySelector('.card__title')!;
-		this.imageElement = this.container.querySelector('.card__image')!;
-		this.categoryElement = this.container.querySelector('.card__category')!;
-		this.priceElement = this.container.querySelector('.card__price')!;
+		this._titleElement = this.container.querySelector('.card__title')!;
+		this._imageElement = this.container.querySelector('.card__image')!;
+		this._categoryElement = this.container.querySelector('.card__category')!;
+		this._priceElement = this.container.querySelector('.card__price')!;
 	}
 
 	set title(title: string) {
-		this.titleElement.textContent = title;
+		this._titleElement.textContent = title;
 	}
 
 	set image(src: string) {
-		this.imageElement.src = src;
-		this.imageElement.alt = this.card.title;
+		this._imageElement.src = src;
+		this._imageElement.alt = this.card.title;
 	}
 
 	set category(category: string) {
-		this.categoryElement.textContent = category;
+		this._categoryElement.textContent = category;
 	}
 
 	set price(price: number) {
 		if (price) {
-			this.priceElement.textContent = price.toString() + ' синапсов';
+			this._priceElement.textContent = price.toString() + ' синапсов';
 		} else {
-			this.priceElement.textContent = 'бесценно';
+			this._priceElement.textContent = 'бесценно';
 		}
 	}
 }

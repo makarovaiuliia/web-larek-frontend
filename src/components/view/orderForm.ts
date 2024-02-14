@@ -3,7 +3,7 @@ import { Form } from '../common/form';
 import { IOrderData, IOrderForm, PaymentMethod } from '../../types';
 
 export class OrderForm extends Form<IOrderForm> {
-	buttonElements: HTMLButtonElement[];
+	private buttonElements: HTMLButtonElement[];
 	constructor(container: HTMLFormElement, events: IEvents) {
 		super(container, events);
 		this.buttonElements = Array.from(

@@ -11,10 +11,10 @@ const shoppingListItemTemplate =
 	ensureElement<HTMLTemplateElement>('#card-basket');
 
 export class ShoppingListView extends Component<IShoppingListItem[]> {
-	events: IEvents;
-	listElement: HTMLElement;
-	totalSumElement: HTMLElement;
-	buttonElement: HTMLButtonElement;
+	private events: IEvents;
+	private listElement: HTMLElement;
+	private totalSumElement: HTMLElement;
+	private buttonElement: HTMLButtonElement;
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);

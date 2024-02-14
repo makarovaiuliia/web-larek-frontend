@@ -16,8 +16,8 @@ export class OrderPresenter extends Presenter<
 	IContactsForm,
 	SuccessModal
 > {
-	orderDetails: IOrderData;
-	formErrors: FormErrors = {};
+	private orderDetails: IOrderData;
+	private formErrors: FormErrors = {};
 
 	constructor(
 		model: IAppModel,
@@ -31,20 +31,20 @@ export class OrderPresenter extends Presenter<
 	}
 
 	handleOpenOrderForm() {
-		if (this.model.shoppingList.length > 0) {
+		if (this._model.shoppingList.length > 0) {
 			this.orderDetails = {
 				payment: '',
 				address: '',
 				email: '',
 				phone: '',
-				total: this.model.shoppingList.reduce(
+				total: this._model.shoppingList.reduce(
 					(sum, item) => sum + item.price,
 					0
 				),
-				items: this.model.shoppingList.map((item) => item.id),
+				items: this._model.shoppingList.map((item) => item.id),
 			};
-			this.modal.render({
-				content: this.view.render({
+			this._modal.render({
+				content: this._view.render({
 					address: '',
 					payment: '',
 					valid: false,
@@ -55,8 +55,8 @@ export class OrderPresenter extends Presenter<
 	}
 
 	handleOpenContactsForm() {
-		this.modal.render({
-			content: this.view2.render({
+		this._modal.render({
+			content: this._view2.render({
 				email: '',
 				phone: '',
 				valid: false,
@@ -95,37 +95,37 @@ export class OrderPresenter extends Presenter<
 			errors.payment = 'Необходимо указать способ оплаты';
 		}
 		this.formErrors = errors;
-		this.events.emit('formErrors:change', this.formErrors);
+		this._events.emit('formErrors:change', this.formErrors);
 		return Object.keys(errors).length === 0;
 	}
 
 	handleErrors(errors: Partial<IOrderData>) {
 		const { email, phone, payment, address } = errors;
-		this.view.valid = !address;
-		this.view2.valid = !email && !phone;
-		this.view.errors = Object.values({ address, payment });
-		this.view2.errors = Object.values({ email, phone });
+		this._view.valid = !address;
+		this._view2.valid = !email && !phone;
+		this._view.errors = Object.values({ address, payment });
+		this._view2.errors = Object.values({ email, phone });
 	}
 
 	handleSendOrderDetails() {
-		this.model.placeOrder(this.orderDetails).then((data: ISuccessOrder) => {
-			this.events.emit('form:submit', { data });
-			this.modal.render({
-				content: this.view3.render({ ...data }),
+		this._model.placeOrder(this.orderDetails).then((data: ISuccessOrder) => {
+			this._events.emit('form:submit', { data });
+			this._modal.render({
+				content: this._view3.render({ ...data }),
 			});
 		});
 	}
 
 	handleOrderFinish() {
-		this.modal.close();
-		this.model.clearShoppingList();
+		this._modal.close();
+		this._model.clearShoppingList();
 		this.orderDetails = {
 			payment: '',
 			address: '',
 			email: '',
 			phone: '',
-			total: this.model.shoppingList.reduce((sum, item) => sum + item.price, 0),
-			items: this.model.shoppingList.map((item) => item.id),
+			total: this._model.shoppingList.reduce((sum, item) => sum + item.price, 0),
+			items: this._model.shoppingList.map((item) => item.id),
 		};
 	}
 }

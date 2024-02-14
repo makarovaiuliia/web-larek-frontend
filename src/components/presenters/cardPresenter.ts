@@ -19,27 +19,27 @@ export class CardPresenter extends Presenter {
 	}
 
 	loadCards(): void {
-		this.model.cardCatalog.forEach((card) => {
+		this._model.cardCatalog.forEach((card) => {
 			const cardContentContainer = cloneTemplate(cardTemplate);
-			const cardElement = new CardView(cardContentContainer, card, this.events);
+			const cardElement = new CardView(cardContentContainer, card, this._events);
 			cardContainer.append(cardElement.render(card));
 		});
 	}
 
 	handleOpenModal(cardInfo: ICard): void {
-		const exists = this.model.ifExists(cardInfo.id);
+		const exists = this._model.ifExists(cardInfo.id);
 
 		const cardPreview = new CardPreview(
 			cloneTemplate(cardModal),
 			cardInfo,
-			this.events
+			this._events
 		);
 
 		if (exists) {
 			cardPreview.button = 'Убрать из корзины';
 		}
 
-		this.modal.render({
+		this._modal.render({
 			content: cardPreview.render(cardInfo),
 		});
 	}

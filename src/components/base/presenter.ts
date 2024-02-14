@@ -3,12 +3,12 @@ import { IAppModel } from '../AppModel';
 import { Modal } from '../common/modal';
 
 export abstract class Presenter<V = undefined, V2 = undefined, V3 = undefined> {
-	protected events: IEvents;
-	protected model: IAppModel;
-	protected modal: Modal;
-	protected view?: V;
-	protected view2?: V2;
-	protected view3?: V3
+	protected _events: IEvents;
+	protected _model: IAppModel;
+	protected _modal: Modal;
+	protected _view?: V;
+	protected _view2?: V2;
+	protected _view3?: V3
 
 	constructor(
 		model: IAppModel,
@@ -18,11 +18,11 @@ export abstract class Presenter<V = undefined, V2 = undefined, V3 = undefined> {
 		view2?: V2,
 		view3?: V3
 	) {
-		this.model = model;
-		this.events = events;
-		this.modal = modal;
-		this.view = view;
-		this.view2 = view2;
-		this.view3 = view3;
+		this._model = model;
+		this._events = events;
+		this._modal = modal;
+		this._view = view;
+		this._view2 = view2;
+		this._view3 = view3;
 	}
 }
