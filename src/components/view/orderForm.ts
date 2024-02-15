@@ -22,6 +22,9 @@ export class OrderForm extends Form<IOrderForm> {
 	}
 
 	set payment(value: PaymentMethod) {
+		this.buttonElements.forEach((button) => {
+			button.classList.remove('button_alt-active');
+		});
 		(
 			this.container.elements.namedItem(`${value}`) as HTMLButtonElement
 		).classList.add('button_alt-active');
