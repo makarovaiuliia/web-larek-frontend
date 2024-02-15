@@ -1,16 +1,16 @@
 import { Presenter } from '../base/presenter';
 import { IAppModel } from '../AppModel';
-import { Modal } from '../common/modal';
+import { IModal } from '../common/modal';
 import { IShoppingListItem } from '../../types';
 import { IEvents } from '../base/events';
-import { ShoppingListView } from '../view/shoppingListView';
+import { IShoppingListView } from '../view/shoppingListView';
 
-export class ShoppingListPresenter extends Presenter<ShoppingListView> {
+export class ShoppingListPresenter extends Presenter<IShoppingListView> {
 	constructor(
 		model: IAppModel,
 		events: IEvents,
-		modal: Modal,
-		view: ShoppingListView
+		modal: IModal,
+		view: IShoppingListView
 	) {
 		super(model, events, modal, view);
 		this.handleUpdateView();

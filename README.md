@@ -1,7 +1,5 @@
 # Web-ларёк | documentation
 
-Здравствуйте! Всю документацию можно посмотреть на [этом сайте](https://green-receipt-741.notion.site/Web-documentation-51926a96fb1d4cb7be2e63f5e373307e?pvs=4), так будет удобнее:)
-
 ## Используемый стек
 
 - HTML
@@ -21,7 +19,7 @@
 - src/pages/**index.html** — HTML-файл главной страницы
 - src/types/**index.ts** — файл с типами
 - src/**index.ts** — точка входа приложения
-- src/styles/**styles.scss** — корневой файл стилей
+- src/scss/**styles.scss** — корневой файл стилей
 - src/utils/**constants.ts** — файл с константами
 - src/utils/**utils.ts** — файл с утилитами
 
@@ -45,72 +43,85 @@ npm run start
 npm run build
 ```
 
-## UML-диаграмма
+## Описание архитектурного решения
 
-[Диаграмма в Miro](https://miro.com/welcomeonboard/d2J1aGxhMjBmcnEycmZpeDN6aGdPZ282VWt1Nlk0N0twSktOTzVPM1g4aUFqMXY2c0Rha2JyeDFnVjY5THl5YnwzNDU4NzY0NTc3ODc4MjgxMzk0fDI=?share_link_id=781197361819)
+В качестве основы для архитектуры приложения выбран паттерн MVP (Model-View-Presenter).
 
+**Model:** при разработке мы придерживается подхода single model, то есть одна модель данных на все приложение.
+
+**View**: в приложении множество классов, которые находятся в слое view. Они отвечают за отображение UI и взаимодействия с ним.
+
+**Presenter**: всего презентеров в приложении 3:
+1. CardPresenter - связывает операции с карточками и модель,
+2. ShoppingListPresenter - связывает операции с корзиной и модель
+3. OrderPresenter - связывает модель и процесс оформления заказа.
 
 ## Описание ключевых типов данных
 
 ### Интерфейсы
 
 ```tsx
-/* Интерфейс хранения данных всего приложения, включает в себя каталог
- всех карточек, массив добавленных в корзину товаров и данные заказа */
-
-interface IAppModel{
-		projectAPI: API; // API - класс, который есть в базовом коде
-    cardCatalog: ICard[];
-    shoppingList: IShoppingListItem[];
-    order: IOrderData | null;
-}
-
 /* Интерфейс хранения данных карточки, которую приложение получает из сервера
 и на основе которой заполняются карточки в HTML через слой View */
 
-interface ICard {
-		id: string;
-		description: string;
-		image: string;
-		title: string;
-		category: string;
-		price: number;
+export interface ICard {
+	id: string;
+	description: string;
+	image: string;
+	title: string;
+	category: string;
+	price: number | null;
 }
 
 /* Интерфейс элемента корзины покупок. Включает в себя id и price. Id - для
 отправки данных заказа на сервер, а price - чтобы посчитать итоговую сумму заказа */
 
-interface IShoppingListItem {
-		id: string;
-		price: number;
-		title: string;
+export interface IShoppingListItem {
+	id: string;
+	price: number;
+	title: string;
 }
 
 /* Интерфейс хранения данных заказа */
 
-type PaymentMethod = 'онлайн' | 'при получении';
+export type PaymentMethod = 'онлайн' | 'при получении' | '';
 
-interface IOrderForm {
-    payment: PaymentMethod;
-    email: string;
-    phone: string;
-		address: string;
+export interface IFormState {
+	valid: boolean;
+	errors: string[];
+}
+export interface IContactsForm extends IFormState {
+	email: string;
+	phone: string;
+	render: (state: Partial<IContactsForm> & IFormState) => HTMLElement;
 }
 
-interface IOrderItems {
-		total: number;
-		items: string[];
+export interface IOrderForm extends IFormState {
+	payment: PaymentMethod;
+	address: string;
+	render: (state: Partial<IOrderForm> & IFormState) => HTMLElement;
 }
 
-interface IOrderData {
-		form: IorderForm;
-		items: IOrderItems;
+export interface IOrderItems {
+	total: number;
+	items: string[];
 }
+
+export interface IOrderData extends IOrderItems {
+	payment: PaymentMethod;
+	address: string;
+	email: string;
+	phone: string;
+}
+
+export type FormErrors = Partial<Record<keyof IOrderData, string>>;
+export type ButtonState = 'В корзину' | 'Убрать из корзины';
 
 /* Интерфейс удачного оформления заказа */
 
-interface ISucsessOrder {
-		total: number
+export interface ISuccessOrder {
+	total: number;
+	id: string;
 }
 ```
 
@@ -119,43 +130,47 @@ interface ISucsessOrder {
 В данном проекте присутствует несколько базовых классов:
 
 - **Api** - базовый класс по работе с Api проекта
-    
+
     **Поля класса**:
-    
+
     - `baseUrl`: string
     - `options`: RequestInit (headers)
-    
+
     Все поля заполняются при инициализации класса с помощью конструктора.
-    
+
     **Методы класса:**
-    
+
     - `protected **handleResponse**(response: Response)` - возвращает ответ из сервера в формате JSON. При возникновении ошибки - обрабатывает ее. Данный метод вызывается из всех остальных методов
     - `**get**(uri: string)` - принимает путь, возвращает информацию от сервера
     - `**post**(uri: string, data: object, method: ApiPostMethods = 'POST')`- принимает путь и данные для отправки на сервер, возвращает информацию от сервера
-    
+
     Примечание: от этого класса наследует класс ProjectApi, описанный далее.
-    
+
 - **EventEmitter** - брокер событий, базовый класс по работе с событиями
-    
+
     При инициализации создает общий брокер события для всего приложения. Он представляет слой presenter.
-    
+
     **Поля класса**:
-    
+
     - `_events`: Map<EventName, Set<Subscriber>>, где eventName - это строка или регулярное выражение, а Subscriber - функция;
-    
+
     **Методы класса:**
-    
+
     - `**on**<T extends object>(eventName: EventName), callBack: (event: T) => void): void` : подписывает коллбек функцию на определенное событие. Если события не существует, то создает его.
     - `**off**(eventName: EventName, callback: Subscriber): void` : удаляет подписку на событие. Если больше нет других подписок, то удаляет событие
     - `**emit**<T extends object>(eventName: string, data?: T): void` : отправляет событие всем подписчикам. Если eventName соответствует RegExp или строке, выполняются соответствующие коллбеки.
     - `**onAll**(callback: (event: EmitterEvent) => void): void` : подписывает коллбэк на все события, создаваемые экземпляром.
     - `**offAll**(): void` : удаляет все подписки вызванные экземпляром
     - `**trigger**<T extends object>(eventName: string, context?: Partial<T>): (data: T) => void` : cоздает и возвращает функцию триггера для определенного события, которая при вызове генерирует событие с предоставленными данными и контекстом.
-- **Component** - абстрактный класс, который обслуживает создание UI компонентов. Он содержит методы, которые эффективно манипулируют DOM элементами
+- **Component** - абстрактный класс, который является базовым классом для создания UI компонентов. Он содержит методы, которые эффективно манипулируют DOM элементами
     
     **Конструктор класса:**
     
     Конструктор принимает `**container**: HTMLElement` и инициализирует его.
+    
+    **Поля класса:**
+    
+    Собственных полей нет
     
     **Методы класса:**
     
@@ -164,10 +179,53 @@ interface ISucsessOrder {
     - `**setDisabled**(element: HTMLElement, state: boolean): void` : активирует или деактивирует указанный элемент в зависимости от предоставленного состояния.
     - `**setHidden**(element: HTMLElement): void` : скрывает указанный элемент.
     - `**setVisible**(element: HTMLElement): void` : показывает указанный элемент
-    - `**setImage**(element: HTMLImageElement, src: string, alt?: string): void` устанавливает источник и альтернативный текст для картинки
+    - `**setImage**(element: HTMLImageElement, src: string, alt?: string): void` устанавливает источник и алтернативный текст для картинки
     - `**render**(data?: Partial<T>): HTMLElement` : рендерит компонент, при необходимости объединяя предоставленные данные со свойствами компонента. Возвращает корневой элемент контейнера.
+- **Presenter** - абстрактный класс, который является базовым классом для всех презентеров
+    
+    **Конструктор класса:**
+    
+    Конструктор принимает от 3х до 5-ти аргументов. 3 - обязательные: это модель, eventEmitter и модальное окно. Далее идут от одного до трех необязательных view классов.
+    
+    **Поля класса:**
+    
+    - `protected _events`: IEvents;
+    - `protected _model`: IAppModel;
+    - `protected _modal`: Modal;
+    - `protected _view?`: V;
+    - `protected _view2?`: V2;
+    - `protected _view3?`: V3
+    
+    **Методы класса:**
+    
+    собственных методов нет
+    
 
-### Класс: API
+### Класс: Project Api
+
+Для облегчения работы с Api создается наследник класса Api - ProjectApi. Он реализует следующий интерфейс:
+
+```tsx
+export interface IProjectApi {
+	getCardList: () => Promise<ICard[]>;
+	getCard: (id: string) => Promise<ICard>;
+	postOrder: (order: IOrderData) => Promise<ISuccessOrder>;
+}
+```
+
+**Конструктор класса:**
+
+Класс принимает на входе помимо указанных в базовом классе параметров, параметр cdn для путей изображений. baseUrl и options уходят в super();
+
+**Поля класса:**
+
+- `readonly cdn:` string;
+
+**Методы класса:**
+
+- `getCardList: () => Promise<ICard[]>` : получает массив карточек с сервера
+- `getCard: (id: string) => Promise<ICard>` : получает информацию о конкретной карточке
+- `postOrder: (order: IOrderData) => Promise<ISuccessOrder>` : отправляет заказ на сервер
 
 ### Класс: слой Model
 
@@ -175,396 +233,266 @@ interface ISucsessOrder {
 
 ```tsx
 interface IAppModel {
-    projectAPI: API;
-    cardCatalog: ICard[];
-    shoppingList: IShoppingListItem[];
-    order: IOrderData | null;
-    openedCard: IShoppingListItem | null;
-    events: IEvents;
+	cardCatalog: ICard[];
+	shoppingList: IShoppingListItem[];
+	order: IOrderData | null;
 
-    set cards(): void
-    addToShoppingList(item: IShoppingListItem): void;
-    removeFromShoppingList(itemId: string): void;
-    placeOrder(orderData: IOrderData): void
-    emitChanges(event: string, payload?: object): void;
+	addToShoppingList(item: IShoppingListItem): void;
+	removeFromShoppingList(itemId: string): void;
+	ifExists(id: string): boolean;
 }
 ```
 
-В классе AppModel зашиты следующие методы:
+**Конструктор класса:**
 
-- **`set cards()`**: использует класс API для того, чтобы получить массив карточек с сервера.
-- **`addToShoppingList(item: IShoppingListItem)`**: добавляет карточку в корзину, а также в LocalStorage
-- **`removeFromShoppingList(itemId: string)`**: удаляет карточку из корзины по идентификатору, а также из LocalStorage
-- **`fetchShoppingList(): IShoppingListItem[] | null`** : выгружает карточки из localStorage перед отображением их в корзине
-- **`placeOrder(orderData: IOrderData)`**: делает заказ, используя API.
-- **`emitChanges(event: string, payload?: object)`**: уведомляет все заинтересованные компоненты об изменениях в модели, позволяя им адаптироваться к новому состоянию данных.
+Класс принимает на входе инициализированные классы ProjectApi и EventEmitter, а также запускает метод `initialize()`
+
+**Поля класса:**
+
+- `protected projectAPI`: IProjectApi;
+- `protected events:` : IEvents;
+- `cardCatalog`: ICard[];
+- `shoppingList`: IShoppingListItem[];
+
+**Методы класса:**
+
+- `private initialize():void` :вызывается из конструктора и использует fetchCards();
+- `private fetchCards()`: использует класс API для того, чтобы получить массив карточек с сервера.
+- `addToShoppingList(item: IShoppingListItem)`: добавляет карточку в корзину, а также в LocalStorage
+- `removeFromShoppingList(itemId: string)`: удаляет карточку из корзины по идентификатору, а также из LocalStorage
+- `getShoppingList(): void` : выгружает карточки из localStorage и заносит в переменную shoppingList
+- `placeOrder**(orderData: IOrderData)`: делает заказ, используя API.
+- `clearShoppingList(): void` : очищает корзину из модели и localStorage
 
 ### Класс: слой View
 
-Базовый класс:
+Общий класс:
 
-- **Modal** extends Component - предоставить основу для создания и управления модальными окнами в приложении.
-    
+- **Modal** extends Component - представляет собой основу для создания и управления модальными окнами в приложении.
+
     **Конструктор класса:**
-    
-    Принимает container и events. В контейнере ищет кнопку закрытия - `_*closeButton`, и контент - `_content`*.  На кнопку и на контейнер ставит обработчик событий, который закрывает модальное окно при нажатии на кнопку и на все, что находится вне модального окна. 
-    
+
+    Принимает container и events. В контейнере ищет кнопку закрытия - `_*closeButton`, и контент - `_content`.  На кнопку и на контейнер ставит обработчик событий, который закрывает модальное окно при нажатии на кнопку и на все, что находится вне модального окна. 
+
     **Поля класса:**
-    
-    - protected `_closeButton`: HTMLButtonElement;
-    - protected `_content`: HTMLElement;
-    
+
+    - `protected _closeButton`: HTMLButtonElement;
+    - `protected _content`: HTMLElement;
+
     **Методы класса:**
-    
-    - **`set content**(value: HTMLElement)` ****: устанавливает или обновляет контент, отображаемый в модальном окне;
-    - `**open()**: void` :открывает модальное окно;
-    - `**close()**: void` :закрывает модальное окно;
-    - **`render**(data: IModalData): HTMLElement` :отображает модальное окно с предоставленными данными. Автоматически открывает модальное окно после рендеринга.
 
-Классы отображения
+    - `set content(value: HTMLElement)` ****: устанавливает или обновляет контент, отображаемый в модальном окне;
+    - `open(): void` :открывает модальное окно;
+    - `close(): void` :закрывает модальное окно;
+    - `render(data: IModalData): HTMLElement` :отображает модальное окно с предоставленными данными. Автоматически открывает модальное окно после рендеринга.
+- **Card** extends Component - основа для карточек в каталоге и в модальном окне
 
-- **CardView** extends Component - нужен для отображения карточек в приложении
-    
     **Конструктор класса:**
-    
-    На входе класс принимает `HTMLTemplateElement`, который будет играть роль контейнера. При инициализации класса сразу же шаблон клонируется и отправляется в `super()`. Далее с помощью шаблона и querySelector заполняются поля класса.
-    
-    Также при инициализации на `this.container` добавляется eventListener(’click’, openModal), который будет передавать данные карточки для открытия модального окна 
-    
-    ```html
-    <!-- Шаблон для карточек -->
-    <template id="card-catalog">
-    		<button class="gallery__item card">
-    			<span class="card__category card__category_soft">софт-скил</span>
-    			<h2 class="card__title">+1 час в сутках</h2>
-    			<img class="card__image" src="<%=require('../images/Subtract.svg')%>" alt="" />
-    			<span class="card__price">750 синапсов</span>
-    		</button>
-    	</template>
-    ```
-    
+
+    На входе класс принимает `HTMLElement`, который будет играть роль контейнера, он отправляется в `super()`. Далее с помощью шаблона и querySelector заполняются поля класса.
+
     **Поля класса:**
-    
-    - private `titleElement`: HTMLElement;
-    - private `imageElement`: HTMLImageElement;
-    - private `categoryElement`: HTMLElement;
-    - private `priceElement`: HTMLElement;
-    
+
+    - `protected _card`: ICard;
+    - `events`: IEvent;
+    - `protected _titleElement`: HTMLElement;
+    - `protected _imageElement`: HTMLImageElement;
+    - `protected _categoryElement`: HTMLElement;
+    - `protected _priceElement`: HTMLElement;
+
     **Методы класса**
-    
-    - `**setTitle**(title: string)`: void: устанавливает название карточки;
-    - `**setImage**(src: string): void` : устанавливает данные изображения;
-    - **`setCategory**(category: string): void` : устанавливает категорию карточки;
-    - **`setPrice**(price: number): void` : устанавливает цену товара;
-    
-- **ShoppingListView**  extends Component - рендерит корзину с товарами
+    - `setTitle(title: string)`: void: устанавливает название карточки;
+    - `setImage(src: string): void` : устанавливает данные изображения;
+    - `setCategory(category: string): void` : устанавливает категорию карточки;
+    - `setPrice(price: number): void` : устанавливает цену товара;
+- **Form**<T> extends Component<IFormState> - основа для форм заказа
     
     **Конструктор класса:**
     
-    Конструктор получает на входе шаблон для корзины, он клонируется и отправляется в super(), далее внутри контейнера находятся listElement, buttonElement и totalPriceElement. На buttonElement устанавливается обработчик событий, который передает данные для заказа. На listElement также добавляется обработчик событий, который реагирует на нажатие кнопки удаления элемента из корзины.
-    
-    ```html
-    <!-- шаблон корзины -->
-    <template id="basket">
-    		<div class="basket">
-    			<h2 class="modal__title">Корзина</h2>
-    			<ul class="basket__list"></ul>
-    			<div class="modal__actions">
-    				<button class="button basket__button">Оформить</button>
-    				<span class="basket__price">0 синапсов</span>
-    			</div>
-    		</div>
-    	</template>
-    ```
+    Принимает элемент формы, а также EventEmitter. Также вешает слушатели событий на input элементы и на кнопку submit;
     
     **Поля класса:**
     
-    - private listElement: HTMLElement;
-    - private totalPriceElement: HTMLElement;
-    - buttonElement: HTMLElement;
+    - `protected _submit`: HTMLButton
+    - `protected _errors`: HTMLElement
     
     **Методы класса:**
     
-    - `private **updateTotalPrice**(): void` : обновляет цену при добавлении/удалении карточек из корзины
-    - `private **updateOrderData**(): void` : обновляет данные в this.orderData и передает их в модель
+    - `protected **onInputChange**(field: keyof T, value: string)` : реагирует на изменения в Input элементах формы
+    - `set valid(value: boolean)` : устанавливает валидность формы
+    - `set errors(value: string[])` : устанавливает ошибки формы
+    - `render(state: Partial<T> & IFormState)` : рендерит форму
+
+**Классы отображения**
+
+Карточки
+
+- **CardView** extends Card - нужен для отображения карточек в каталоге
+
+    **Конструктор класса:**
+
+    Вызывает super, а также ставить слушатель событий на саму карточку, при нажатии эмитирует событие `card:select`.
+
+    **Поля класса:**
+
+    собственных полей нет
+
+    **Методы класса**
+
+    собственных методов нет
+
+- **CardPreview** extends Card - нужен для отображения карточек в модальном окне
+
+    **Конструктор класса**
+
+    Вызывает super, а также ставить слушатель событий на кнопку “В корзину”
+
+    **Поля класса:**
+
+    - private `descriptionElement:` HTMLElement;
+    - private `buttonElement:` HTMLButtonElement;
+
+    **Методы класса:**
+
+    - `set description(title: string)`: void: устанавливает описание карточки;
+    - `set button(buttonText: ButtonState): void`: устанавливает состояние кнопки добавления в корзину
+
+Корзина
+
+- **ShoppingListView**  extends Component - рендерит корзину с товарами
+
+    **Конструктор класса:**
+
+    Конструктор получает на входе HTMLElement корзины, он отправляется в super(), далее внутри контейнера находятся listElement, buttonElement и totalPriceElement. На buttonElement устанавливается обработчик событий, который эмитирует событие `order:start`.
+
+    **Поля класса:**
+
+    - `private listElement`: HTMLElement;
+    - `private totalSumElement`: HTMLElement;
+    - `private buttonElement`: HTMLElement;
+    - `private events`: IEvent
+    
+    **Методы класса:**
+    
+    - `private updateTotalSum(): void` : обновляет цену при добавлении/удалении карточек из корзины
+    - `private updateOrderData(): void` : обновляет данные в this.orderData и передает их в модель
+    - `public updateView(*shoppingListItems*: IShoppingListItem[]): void`: обновляет элементы в корзине после добавления/удаления
 - **ShoppingListItemView** extends Component - нужен для рендера элементов корзины
     
     **Конструктор класса:**
     
-    Конструктор получает на входе шаблон для корзины, он клонируется и отправляется в super(), далее внутри контейнера находятся indexElement, priceElement и titleElement.
-    
-    ```html
-    <template id="card-basket">
-    		<li class="basket__item card card_compact">
-    			<span class="basket__item-index">1</span>
-    			<span class="card__title">Фреймворк куки судьбы</span>
-    			<span class="card__price">2500 синапсов</span>
-    			<button class="basket__item-delete card__button" aria-label="удалить"></button>
-    		</li>
-    	</template>
-    ```
+    Конструктор получает на входе HTMLElement корзины, он отправляется в super(), далее внутри контейнера находятся indexElement, priceElement и titleElement и buttonElement. На buttonElement вешается слушатель событий, который при клике на кнопку эмитирует событие `card:remove`.
     
     **Поля класса:**
     
-    - private indexElement: HTMLElement
-    - private titleElement: HTMLElement;
-    - private priceElement: HTMLElement;
+    - `private indexElement`: HTMLElement
+    - `private titleElement`: HTMLElement;
+    - `private priceElement`: HTMLElement;
+    - `private buttonElement`: HTMLButtonElement;
     
     **Методы класса:**
     
-    - `**setTitle**(title: string)`: void: устанавливает название карточки;
-    - `**setIndex**(index: string): void` : устанавливает индекс;
-    - **`setPrice**(price: number): void` : устанавливает цену товара;
-    
+    - `setTitle(title: string)`: void: устанавливает название карточки;
+    - `setIndex(index: string): void` : устанавливает индекс;
+    - `setPrice(price: number): void` : устанавливает цену товара;
 
-Модальные окна
 
-- **CardInfoModal** extends Modal - модальное окно с отображением информации об отдельной карточке
-    
+Формы заказа
+
+- **OrderForm** extends Form<IOrderForm> - рендерит первую часть формы заказа
+
     **Конструктор класса:**
-    
-    Принимает на вход контейнер с модальным окном карточки, он передается в super(), а также eventEmitter.
-    
-    ```html
-    <!-- модальное окно для карточки -->
-    <div class="modal modal_active" id="card-modal">
-    		<div class="modal__container">
-    			<button class="modal__close" aria-label="закрыть"></button>
-    			<div class="modal__content">
-    				<div class="card card_full">
-    					<img class="card__image" src="<%=require('../images/Subtract.svg')%>" alt="" />
-    					<div class="card__column">
-    						<span class="card__category card__category_other">другое</span>
-    						<h2 class="card__title">Бэкенд-антистресс</h2>
-    						<p class="card__text">Если планируете решать задачи в тренажёре, берите два.</p>
-    						<div class="card__row">
-    							<button class="button">В корзину</button>
-    							<span class="card__price">1000 синапсов</span>
-    						</div>
-    					</div>
-    				</div>
-    			</div>
-    		</div>
-    	</div>
-    ```
-    
+
+    Принимает элемент формы, а также EventEmitter и отправляет в super(). Также вешает слушатели событий на кнопки выбора способа оплаты
+
     **Поля класса:**
-    
-    - private `titleElement`: HTMLElement;
-    - private `imageElement`: HTMLImageElement;
-    - private `categoryElement`: HTMLElement;
-    - private `priceElement`: HTMLElement;
-    - private `textElement`: HTMLElement;
-    
+
+    - `private buttonElements:` HTMLButtonElement[];
+
     **Методы класса:**
-    
-    - `**setTitle**(title: string)`: void: устанавливает название карточки;
-    - `**setImage**(src: string): void` : устанавливает данные изображения;
-    - **`setCategory**(category: string): void` : устанавливает категорию карточки;
-    - **`setPrice**(price: number): void` : устанавливает цену товара;
-    - **`setText**(text: string): void`: устанавливает описание;
-- **ShoppingListModal** extends Modal - модальное окно с корзиной
-    
+
+    - `set address(value: string)` : устанавливает адрес
+    - `set payment(value: PaymentMethod)` : устанавливает метод оплаты
+    - `handlePaymentChange(event: IEvent)`: реагирует на нажатие кнопок выбора способа оплаты
+- **ContactsForm** extends Form<IContactsForm> - рендерит вторую часть формы заказа
+
     **Конструктор класса:**
-    
-    Принимает на вход контейнер с модальным окном корзины, он передается в super(), а также eventEmitter. Также в конструкторе происходит следующее: инизиализируется сама корзина (класс **ShoppingListView**) и используется модальным окном.
-    
-    ```html
-    <!-- Элемент, который получается этот класс -->
-    <div class="modal" id="shopping-list-modal">
-    		<div class="modal__container">
-    			<button class="modal__close" aria-label="закрыть"></button>
-    			<div class="modal__content">
-    				<div class="basket">
-    					...
-    				</div>
-    			</div>
-    		</div>
-    	</div>
-    ```
-    
-    Поля класса:
-    
-    - private **`shoppingList:`** ShoppingListView;
-- **PaymentFormModal** extends Modal - модальное окно с формой заказа
-    
-    **Конструктор класса:**
-    
-    Принимает на вход контейнер с модальным окном формы, он передается в super(), а также eventEmitter. С помощью querySelector находится кнопка “далее” и все input.
-    
-    ```html
-    <!-- модальное окно формы -->
-    <div class="modal" id="order-place-modal">
-    		<div class="modal__container">
-    			<button class="modal__close" aria-label="закрыть"></button>
-    			<div class="modal__content">
-    				<form class="form">
-    					<div class="order">
-    						<div class="order__field">
-    							<h2 class="modal__title">Способ оплаты</h2>
-    							<div class="order__buttons">
-    								<button type="button" class="button button_alt">Онлайн</button>
-    								<button type="button" class="button button_alt">При получении</button>
-    							</div>
-    						</div>
-    						<label class="order__field">
-    							<span class="form__label modal__title">Адрес доставки</span>
-    							<input class="form__input" type="text" placeholder="Введите адрес" />
-    						</label>
-    					</div>
-    					<div class="modal__actions">
-    						<button disabled class="button">Далее</button>
-    					</div>
-    				</form>
-    			</div>
-    		</div>
-    	</div>
-    ```
-    
+
+    Принимает элемент формы, а также EventEmitter и отправляет в super(). Также вешает слушатели событий на кнопки выбора способа оплаты
+
     **Поля класса:**
-    
-    - `buttonElement`: HTMLButtonElement;
-    - private `inputElements`: HTMLInputElements[]
-    
+
+    нет собственных полей
+
     **Методы класса:**
-    
-    - `**setupValidation**(): void` : устанавливает валидацию для всех полей формы и не дает пройти дальше без заполнения всех полей
-- **OrderDetailsModal** extends Modal - модальное окно с формой заказа
-    
+
+    - `set phone(value: string)` : устанавливает телефон
+    - `set email(value: PaymentMethod)` : устанавливает почту
+- **SuccessModal** extends Component<ISuccessOrder> - рендерит модальное окно с успешным итогом заказа
+
     **Конструктор класса:**
-    
-    Принимает на вход контейнер с модальным окном формы, он передается в super(), а также eventEmitter. С помощью querySelector находится кнопка “оплатить” и все input.
-    
-    ```html
-    <!-- модальное окно формы -->
-    <div class="modal" id="order-data-model">
-    		<div class="modal__container">
-    			<button class="modal__close" aria-label="закрыть"></button>
-    			<div class="modal__content">
-    				<form class="form">
-    					<div class="order">
-    						<label class="order__field">
-    							<span class="form__label modal__title">Email</span>
-    							<input class="form__input" type="text" placeholder="Введите Email" />
-    						</label>
-    						<label class="order__field">
-    							<span class="form__label modal__title">Телефон</span>
-    							<input class="form__input" type="text" placeholder="+7 (" />
-    						</label>
-    					</div>
-    					<div class="modal__actions">
-    						<button disabled class="button">Оплатить</button>
-    					</div>
-    				</form>
-    			</div>
-    		</div>
-    	</div>
-    ```
-    
+
+    Принимает контейнер и отправляет в super(), а также EventEmitter. Затем щет внутри элемент, где расположена информация о стоимость заказа и кнопку “за новыми покупками”. Также вешает слушатели событий на кнопку “за новыми покупками”.
+
     **Поля класса:**
-    
-    - `buttonElement`: HTMLButtonElement;
-    - private `inputElements`: HTMLInputElements[]
-    
+
+    - `private descriptionElement`: HTMLElement;
+    - `private buttonElement**`: HTMLButtonElement;
+    - `private events`: IEvents;
+
     **Методы класса:**
-    
-    - `**setupValidation**(): void` : устанавливает валидацию для всех полей формы и не дает пройти дальше без заполнения всех полей
-- **SuccessModal** extends Modal - модальное окно с результатом заказа
-    
-    **Конструктор класса:**
-    
-    Принимает на вход контейнер с модальным окном формы, он передается в super(), а также eventEmitter. С помощью querySelector находится кнопка “оплатить” и все input.
-    
-    ```html
-    <!-- модальное окно успешного заказа -->
-    <div class="modal" id="success-modal">
-    		<div class="modal__container">
-    			<button class="modal__close" aria-label="закрыть"></button>
-    			<div class="modal__content">
-    				<div class="order-success">
-    					<h2 class="order-success__title">Заказ оформлен</h2>
-    					<p class="order-success__description">Списано 0 синапсов</p>
-    					<button class="button order-success__close">За новыми покупками!</button>
-    				</div>
-    			</div>
-    		</div>
-    	</div>
-    ```
-    
-    **Поля класса:**
-    
-    - private `descriptionElement`: HTMLElement;
-    - `buttonElements`: HTMLButtonElement;
+
+    - `set total(value: string)` : устанавливает общую стоимость заказа в descriptionElement
 
 ### Классы: слой Presenter
 
-Базовый класс:
+- **CardPresenter** extends Presenter - презентер для связи AppModel и CardView;
 
-```tsx
-abstract class Presenter<M, V> {
-    protected model: M;
-    protected view?: V;
-
-    constructor(model: M, view: V) {
-        this.model = model;
-        this.view = view;
-        this.initialize();
-    }
-    protected abstract initialize(): void;
-}
-```
-
-Презентеры
-
-- **CardPresenter** extends Presenter<AppModel, CardView> - пресентер для связи AppModel и CardView;
-    
     **Конструктор класса:**
-    
-    Принимает общую Модель, CardView, CardInfoModal. Модель и CardView уходят в super().
-    
+
+    Принимает экземпляры классов AppModel, Modal, EventEmitter, которе инициализируются при запуске кода.
+
     **Поля класса:**
-    
-    - private `cardInfoModal`: CardInfoModal
-    
+
+    Собственных полей нет
+
     **Методы класса**
-    
-    - `**initialise**(): void` : добавляет слушатели событий и сами события (в частности на кнопку “в корзину”/”удалить из корзины” в модальном окне и на саму карточку);
-    - **`handleAddToShoppingList**(item: IShoppingListItem): void` : отправляет данные о добавленном элементе в модель
-    - **`handleRemoveFromShoppingList**(id: string): void` : отправляет данные об удаленном элементе в модель
-    - **`handleOpenModal**(cardInfo: ICard): void` : передает данные о нажатой карточке в модальное окно
-- **ShoppingListPresenter** extends Presenter<AppModel, ShoppingListView> - пресентер для связи AppModel и ShoppingListView;
-    
+
+    - `loadCards**(): void` : в ответ на событие cards:fetched запускается эта функция, которая создает каждую карточку и выводит ее в UI
+    - `handleOpenModal(cardInfo: ICard): void` : передает данные о нажатой карточке в модальное окно и в модель
+- **ShoppingListPresenter** extends Presenter<ShoppingListView> - пресентер для связи AppModel и ShoppingListView;
+
     **Конструктор класса:**
-    
-    Принимает общую Модель и ShoppingListView. Они же уходят в super().
-    
+
+    Принимает общую Модель, EventEmitter, Modal и ShoppingListView. Они же уходят в super().
+
     **Методы класса:**
-    
-    - `**initialise**(): void` : добавляет слушатели событий и сами события (например, ставит слушатель событий на кнопку оформить заказ)
-    - **`updateView**(): void` : обновляет вид UI
-    - **`handleOrderPlacement**(): void` : передает информацию о заказе, начинает процесс оформления
-    - **`removeItem**(id: string): void` : удаляет элемент из корзины, отправляет в модель и вызывает updateView()
-- **OrderPresenter** extends Presenter<AppModel> - пресентер для связи AppModel и всех форм;
-    
+
+    - `handleAddToShoppingList**(item: IShoppingListItem): void` - добавляет элемент в корзину, отправляет в модель и вызывает вызывает updateView()
+    - `handleRemoveFromShoppingList(id: string): void` - удаляет элемент из корзины, отправляет в модель и вызывает updateView()
+    - `handleOrderPlacement**(): void` : передает информацию о заказе, начинает процесс оформления
+    - `**handleOpenModal**(): void`: открывает модальное окно корзины
+- **OrderPresenter** extends Presenter<IOrderForm, IContactsForm, SuccessModal> - презентер для связи AppModel и всех форм;
+
     **Конструктор класса:**
-    
-    Принимает общую Модель. Она же уходит в super(). Также он инициализирует два класса: PaymentFormModal, OrderDetailsModal и SuccessModel, таким образом у него будет к нему доступ ко всем модальным окнам, которые связаны с заказом.
-    
+
+    Принимает общую Модель, EventEmitter, Modal, все формы и также SuccessModal. Все это уходит в super().
+
     **Поля класса:**
-    
-    - private `paymentMethodModal`: PaymentMethodModal;
-    - private `orderDetailsModal`: OrderDetailsModal;
-    - private `successModal`: SuccessModal
-    
+
+    - `private orderDetails`: IOrderData;
+    - `private formErrors`: FormErrors = {};
+
     **Методы класса:**
-    
-    - `**initialise**(): void` : добавляет слушатели событий и сами события
-    - `public **startOrderProcess**(): void` : открывает модальное первое модальное окно;
-    - `private **handlePaymentMethodSelected**()`: Открывает следующее окно
-    - `private **handleOrderDetailsSubmitted**()`: Отправляет заказ в модель для отправки на сервер
-    - `private **handleOpenSuccessModal**()`: Когда заказ отправлен, открывает окно SuccessModal
-    - `private **HandleClosingSuccessModal**(): void`: закрывает окно успешного заказа
-    
+
+    - `handleOpenOrderForm(): void` : открывает окно с формой заказа
+    - `handleOpenContactsForm*(): void` : открывает окно с формой заказа
+    - `handleChangeInput(): void` : подставляет значения из формы в переменную с данными заказа
+    - `setOrderField(): void` : подставляет значения из формы в переменную с данными заказа
+    - `validateOrder(): boolean` :проверяет, все ли нужные для заказа данные есть и передает ошибку, если чего то не хватает
+    - `handleErrors**(): void` : передает тексты ошибок
+    - `handleSendOrderDetails(): void` : отправляет заказ на сервер через метод модели
+    - `handleOrderFinish(): void` : заканчивает процесс оформления заказа
 
 ## Описание событий
 
@@ -574,9 +502,16 @@ abstract class Presenter<M, V> {
 
 | Событие | Триггер | Реакция |
 | --- | --- | --- |
-| card:select | При нажатии на любую из карточек | Отправка в AppModel данных выбранной карточки |
-| cards:changed | При добавлении в корзину/удалении из корзины карточки | Переотрисовка карточек в каталоге |
-| shoppingListItem:add | при нажатии на кнопку добавить в корзину | ShoppingListPresenter отрисовывает новый элемент в корзине и передает инфо в модель |
-| shoppingListItem:remove | при нажатии на кнопку убрать из корзины | ShoppingListPresenter удаляет элемент из корзины и передает инфо в модель |
-| paymentMethod:select | при нажатии на одну из кнопок выбора метода оплаты | Добавить инфо в модель |
-| order:sumbit | когда информация о заказе ушла на сервер и вернулся положительный ответ | открывает sucessWindow |
+| cards:fetched | разрешение промиса, который загружает карточки с сервера | cardPresenter использует загруженные карточки для отображения их в UI |
+| card:select | При нажатии на любую из карточек | Отправка в AppModel данных выбранной карточки, а также открытие модального окна с этой карточкой |
+| card:add | при нажатии на кнопку “в корзину” | добавляет элемент в корзину и обновляет список элементов корзины в модели |
+| card:remove | при нажатии на кнопку “убрать из корзины” | удаляет элемент из корзины, обновляет список элементов корзины в модели |
+| modal:open | при открытии любого модального окна | блокируется страница |
+| modal:closed | при закрытии любого модального окна | блокировка страницы снимается |
+| order:start | при нажатии кнопки “оформить” в корзине | открывается форма оформления заказа |
+| order:submit | когда первая часть формы была заполнена и нажата кнопка “далее” | открывается вторая часть формы |
+| contacts:submit | когда вторая часть формы была заполнена и нажата кнопка “оплатить” название кнопки | вызывается метод placeOrder - информация отправляется на сервер |
+| form:submit | когда информация о заказе ушла на сервер и вернулся положительный ответ | открывает successWindow |
+| order:done | при нажатии на кнопку “за новыми покупками” в success модальном окне | корзина товаров в модели очищается, а также очищается localStorage |
+| formErrors:change | при обнаружении событий при валидации | отображение ошибок в форме |
+| /^(order|contacts)\..*:change$/ | изменение любых input элементов в формах | заполнение деталей для заказа |

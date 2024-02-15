@@ -6,15 +6,16 @@ import {
 	ISuccessOrder,
 } from '../../types';
 import { IAppModel } from '../AppModel';
+import { Component } from '../base/component';
 import { IEvents } from '../base/events';
 import { Presenter } from '../base/presenter';
-import { Modal } from '../common/modal';
-import { SuccessModal } from '../view/successModal';
+import { IModal } from '../common/modal';
+import { ISuccessModal } from '../view/successModal';
 
 export class OrderPresenter extends Presenter<
 	IOrderForm,
 	IContactsForm,
-	SuccessModal
+	ISuccessModal
 > {
 	private orderDetails: IOrderData;
 	private formErrors: FormErrors = {};
@@ -22,10 +23,10 @@ export class OrderPresenter extends Presenter<
 	constructor(
 		model: IAppModel,
 		events: IEvents,
-		modal: Modal,
+		modal: IModal,
 		orderForm: IOrderForm,
 		contactsForm: IContactsForm,
-		successModal: SuccessModal
+		successModal: ISuccessModal
 	) {
 		super(model, events, modal, orderForm, contactsForm, successModal);
 	}

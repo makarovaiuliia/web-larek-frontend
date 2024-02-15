@@ -4,17 +4,21 @@ import { Component } from '../base/component';
 import { IEvents } from '../base/events';
 import { ShoppingListItemView } from './shoppingLIstItemView';
 
-const counterElement = ensureElement<HTMLElement>('.header__basket-counter');
-
 //all templates
 const shoppingListItemTemplate =
 	ensureElement<HTMLTemplateElement>('#card-basket');
 
-export class ShoppingListView extends Component<IShoppingListItem[]> {
+export interface IShoppingListView {
+	updateView(shoppingListItems: IShoppingListItem[]): void;
+	render(data?: Partial<IShoppingListItem[]>): HTMLElement;
+}
+
+export class ShoppingListView extends Component<IShoppingListItem[]> implements IShoppingListView {
 	private events: IEvents;
 	private listElement: HTMLElement;
 	private totalSumElement: HTMLElement;
 	private buttonElement: HTMLButtonElement;
+	private counterElement: HTMLElement
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
@@ -23,6 +27,7 @@ export class ShoppingListView extends Component<IShoppingListItem[]> {
 		this.listElement = this.container.querySelector('.basket__list');
 		this.totalSumElement = this.container.querySelector('.basket__price');
 		this.buttonElement = this.container.querySelector('.basket__button');
+		this.counterElement = ensureElement<HTMLElement>('.header__basket-counter');
 
 		this.buttonElement.addEventListener('click', () => {
 			events.emit('order:start');
@@ -41,10 +46,10 @@ export class ShoppingListView extends Component<IShoppingListItem[]> {
 			this.listElement.appendChild(itemSL.render(item));
 		});
 		this.updateTotalSum(shoppingListItems);
-		counterElement.textContent = shoppingListItems.length.toString();
+		this.counterElement.textContent = shoppingListItems.length.toString();
 	}
 
-	updateTotalSum(shoppingListItems: IShoppingListItem[]) {
+	protected updateTotalSum(shoppingListItems: IShoppingListItem[]) {
 		let totalSum = 0;
 		for (let i = 0; i < shoppingListItems.length; i++) {
 			if (shoppingListItems[i].price) {

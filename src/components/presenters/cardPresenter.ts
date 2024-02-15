@@ -1,6 +1,6 @@
 import { Presenter } from '../base/presenter';
 import { IAppModel } from '../AppModel';
-import { Modal } from '../common/modal';
+import { IModal } from '../common/modal';
 import { ICard } from '../../types';
 import { CardView } from '../view/cardView';
 import { cloneTemplate, ensureElement } from '../../utils/utils';
@@ -14,7 +14,7 @@ const cardTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardModal = ensureElement<HTMLTemplateElement>('#card-preview');
 
 export class CardPresenter extends Presenter {
-	constructor(model: IAppModel, events: IEvents, modal: Modal) {
+	constructor(model: IAppModel, events: IEvents, modal: IModal) {
 		super(model, events, modal);
 	}
 

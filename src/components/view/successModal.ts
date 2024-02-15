@@ -2,7 +2,14 @@ import { ISuccessOrder } from '../../types';
 import { Component } from '../base/component';
 import { IEvents } from '../base/events';
 
-export class SuccessModal extends Component<ISuccessOrder> {
+export interface ISuccessModal {
+	render(data?: Partial<ISuccessOrder>): HTMLElement;
+}
+
+export class SuccessModal
+	extends Component<ISuccessOrder>
+	implements ISuccessModal
+{
 	private descriptionElement: HTMLElement;
 	private buttonElement: HTMLButtonElement;
 	private events: IEvents;
@@ -15,7 +22,9 @@ export class SuccessModal extends Component<ISuccessOrder> {
 		);
 		this.buttonElement = this.container.querySelector('.order-success__close');
 
-		this.buttonElement.addEventListener('click', () => {this.events.emit('order:done');});
+		this.buttonElement.addEventListener('click', () => {
+			this.events.emit('order:done');
+		});
 	}
 
 	set total(total: string) {

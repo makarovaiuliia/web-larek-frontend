@@ -8,11 +8,11 @@ export interface IModalData {
 
 export interface IModal {
 	open(): void;
-	render(): HTMLElement;
-	content(): void;
+	close(): void;
+	render(data: IModalData): HTMLElement;
 }
 
-export class Modal extends Component<IModalData> {
+export class Modal extends Component<IModalData> implements IModal {
 	protected _closeButton: HTMLButtonElement;
 	protected _content: HTMLElement;
 
