@@ -5,14 +5,7 @@ import { ProjectApi } from './components/ProjectApi';
 import { AppModel } from './components/AppModel';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { CardPresenter } from './components/presenters/cardPresenter';
-import { CardView } from './components/view/cardView';
-import {
-	ICard,
-	IOrderData,
-	IOrderForm,
-	IShoppingListItem,
-	ISuccessOrder,
-} from './types';
+import { ICard, IOrderData, IShoppingListItem } from './types';
 import { Modal } from './components/common/modal';
 import { ShoppingListView } from './components/view/shoppingListView';
 import { ShoppingListPresenter } from './components/presenters/shoppingLIstPresenter';

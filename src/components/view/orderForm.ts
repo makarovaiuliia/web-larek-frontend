@@ -1,6 +1,6 @@
 import { IEvents } from '../base/events';
 import { Form } from '../common/form';
-import { IOrderData, IOrderForm, PaymentMethod } from '../../types';
+import { IOrderForm, PaymentMethod } from '../../types';
 
 export class OrderForm extends Form<IOrderForm> {
 	private buttonElements: HTMLButtonElement[];

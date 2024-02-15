@@ -6,7 +6,6 @@ import {
 	ISuccessOrder,
 } from '../../types';
 import { IAppModel } from '../AppModel';
-import { Component } from '../base/component';
 import { IEvents } from '../base/events';
 import { Presenter } from '../base/presenter';
 import { IModal } from '../common/modal';

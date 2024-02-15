@@ -21,7 +21,11 @@ export class CardPresenter extends Presenter {
 	loadCards(): void {
 		this._model.cardCatalog.forEach((card) => {
 			const cardContentContainer = cloneTemplate(cardTemplate);
-			const cardElement = new CardView(cardContentContainer, card, this._events);
+			const cardElement = new CardView(
+				cardContentContainer,
+				card,
+				this._events
+			);
 			cardContainer.append(cardElement.render(card));
 		});
 	}

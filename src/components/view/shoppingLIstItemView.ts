@@ -9,7 +9,11 @@ export class ShoppingListItemView extends Component<IShoppingListItem> {
 	private priceElement: HTMLElement;
 	private buttonElement: HTMLButtonElement;
 
-	constructor(container: HTMLElement, events: IEvents, card: IShoppingListItem) {
+	constructor(
+		container: HTMLElement,
+		events: IEvents,
+		card: IShoppingListItem
+	) {
 		super(container);
 		this.events = events;
 		this.indexElement = this.container.querySelector('.basket__item-index');
@@ -18,7 +22,7 @@ export class ShoppingListItemView extends Component<IShoppingListItem> {
 		this.buttonElement = this.container.querySelector('.basket__item-delete ');
 
 		this.buttonElement.addEventListener('click', () => {
-			events.emit('card:remove', {...card});
+			events.emit('card:remove', { ...card });
 		});
 	}
 

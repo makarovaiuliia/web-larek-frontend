@@ -13,12 +13,15 @@ export interface IShoppingListView {
 	render(data?: Partial<IShoppingListItem[]>): HTMLElement;
 }
 
-export class ShoppingListView extends Component<IShoppingListItem[]> implements IShoppingListView {
+export class ShoppingListView
+	extends Component<IShoppingListItem[]>
+	implements IShoppingListView
+{
 	private events: IEvents;
 	private listElement: HTMLElement;
 	private totalSumElement: HTMLElement;
 	private buttonElement: HTMLButtonElement;
-	private counterElement: HTMLElement
+	private counterElement: HTMLElement;
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
