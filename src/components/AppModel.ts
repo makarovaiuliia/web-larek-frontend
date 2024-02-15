@@ -5,7 +5,6 @@ import { IEvents } from './base/events';
 export interface IAppModel {
 	cardCatalog: ICard[];
 	shoppingList: IShoppingListItem[];
-	order: IOrderData | null;
 
 	addToShoppingList(item: IShoppingListItem): void;
 	removeFromShoppingList(itemId: string): void;
@@ -19,7 +18,6 @@ export class AppModel implements IAppModel {
 	protected events: IEvents;
 	cardCatalog: ICard[] = [];
 	shoppingList: IShoppingListItem[] = [];
-	order: IOrderData | null = null;
 
 	constructor(projectApi: IProjectApi, events: IEvents) {
 		this.projectAPI = projectApi;

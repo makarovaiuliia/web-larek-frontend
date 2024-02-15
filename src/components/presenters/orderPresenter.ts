@@ -41,7 +41,13 @@ export class OrderPresenter extends Presenter<
 					(sum, item) => sum + item.price,
 					0
 				),
-				items: this._model.shoppingList.map((item) => item.id),
+				items: this._model.shoppingList
+					.map((item) => {
+						if (item.price) {
+							return item.id;
+						}
+					})
+					.filter((item) => item),
 			};
 			this._modal.render({
 				content: this._view.render({
@@ -77,7 +83,6 @@ export class OrderPresenter extends Presenter<
 			this.orderDetails[field] = value as IOrderData[K];
 		}
 		this.validateOrder();
-		console.log(this.orderDetails);
 	}
 
 	validateOrder() {
@@ -124,7 +129,10 @@ export class OrderPresenter extends Presenter<
 			address: '',
 			email: '',
 			phone: '',
-			total: this._model.shoppingList.reduce((sum, item) => sum + item.price, 0),
+			total: this._model.shoppingList.reduce(
+				(sum, item) => sum + item.price,
+				0
+			),
 			items: this._model.shoppingList.map((item) => item.id),
 		};
 	}
