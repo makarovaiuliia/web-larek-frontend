@@ -21,7 +21,7 @@ export interface IShoppingListItem {
 
 /* Интерфейс хранения данных заказа */
 
-export type PaymentMethod = 'онлайн' | 'при получении' | '';
+export type PaymentMethod = 'card' | 'cash' | '';
 
 export interface IFormState {
 	valid: boolean;

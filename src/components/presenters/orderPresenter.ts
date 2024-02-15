@@ -33,7 +33,7 @@ export class OrderPresenter extends Presenter<
 	handleOpenOrderForm() {
 		if (this._model.shoppingList.length > 0) {
 			this.orderDetails = {
-				payment: '',
+				payment: 'card',
 				address: '',
 				email: '',
 				phone: '',
@@ -52,7 +52,7 @@ export class OrderPresenter extends Presenter<
 			this._modal.render({
 				content: this._view.render({
 					address: '',
-					payment: '',
+					payment: 'card',
 					valid: false,
 					errors: [],
 				}),
@@ -71,11 +71,7 @@ export class OrderPresenter extends Presenter<
 		});
 	}
 
-	handleChangeInput(data: { field: keyof IOrderData; value: string }) {
-		this.setOrderField(data.field, data.value);
-	}
-
-	setOrderField<K extends keyof IOrderData>(
+	handleChangeInput<K extends keyof IOrderData>(
 		field: K,
 		value: IOrderData[K] | string
 	) {

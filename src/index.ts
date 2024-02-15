@@ -112,8 +112,7 @@ events.on('contacts:submit', () => {
 events.on(
 	/^(order|contacts)\..*:change$/,
 	(data: { field: keyof IOrderData; value: string }) => {
-		console.log(data);
-		orderPresenter.handleChangeInput(data);
+		orderPresenter.handleChangeInput(data.field, data.value);
 	}
 );
 

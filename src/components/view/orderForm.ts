@@ -21,20 +21,22 @@ export class OrderForm extends Form<IOrderForm> {
 			value;
 	}
 
-	set payment(value: PaymentMethod) {}
+	set payment(value: PaymentMethod) {
+		(
+			this.container.elements.namedItem(`${value}`) as HTMLButtonElement
+		).classList.add('button_alt-active');
+	}
 
 	private handlePaymentChange(event: Event) {
 		const target = event.target as HTMLButtonElement;
 
 		this.buttonElements.forEach((button) => {
-			button.classList.remove('button_alt-active');
+			button.classList.toggle('button_alt-active');
 		});
-
-		target.classList.add('button_alt-active');
 
 		this.events.emit('order.payment:change', {
 			field: 'payment',
-			value: target.textContent.toLowerCase(),
+			value: target.name,
 		});
 	}
 }
