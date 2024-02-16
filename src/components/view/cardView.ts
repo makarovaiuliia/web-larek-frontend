@@ -5,7 +5,7 @@ import { Card } from '../common/card';
 export class CardView extends Card {
 	constructor(container: HTMLElement, card: ICard, events: IEvents) {
 		super(container, card, events);
-		this.container.addEventListener('click', (event) => {
+		this.container.addEventListener('click', () => {
 			this.events.emit('card:select', { ...this.card });
 		});
 	}

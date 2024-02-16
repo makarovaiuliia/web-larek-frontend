@@ -8,10 +8,10 @@ import { CardPresenter } from './components/presenters/cardPresenter';
 import { ICard, IOrderData, IShoppingListItem } from './types';
 import { Modal } from './components/common/modal';
 import { ShoppingListView } from './components/view/shoppingListView';
-import { ShoppingListPresenter } from './components/presenters/shoppingLIstPresenter';
+import { ShoppingListPresenter } from './components/presenters/shoppingListPresenter';
 import { OrderPresenter } from './components/presenters/orderPresenter';
 import { OrderForm } from './components/view/orderForm';
-import { ContactsForm } from './components/view/contacsForm';
+import { ContactsForm } from './components/view/contactsForm';
 import { SuccessModal } from './components/view/successModal';
 
 // all templates
@@ -100,6 +100,7 @@ events.on('order:submit', () => {
 
 events.on('contacts:submit', () => {
 	orderPresenter.handleSendOrderDetails();
+	shoppingListPresenter.handleUpdateView();
 });
 
 events.on(
@@ -114,6 +115,5 @@ events.on('formErrors:change', (errors: Partial<IOrderData>) => {
 });
 
 events.on('order:done', () => {
-	orderPresenter.handleOrderFinish();
-	shoppingListPresenter.handleUpdateView();
+	modal.close();
 });

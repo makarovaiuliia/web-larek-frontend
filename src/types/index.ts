@@ -21,7 +21,7 @@ export interface IShoppingListItem {
 
 /* Интерфейс хранения данных заказа */
 
-export type PaymentMethod = 'card' | 'cash' | '';
+export type PaymentMethod = 'card' | 'cash';
 
 export interface IFormState {
 	valid: boolean;
@@ -60,3 +60,19 @@ export interface ISuccessOrder {
 	total: number;
 	id: string;
 }
+
+export type CategoryKey =
+	| 'софт-скил'
+	| 'другое'
+	| 'кнопка'
+	| 'дополнительное'
+	| 'хард-скил';
+
+// The Category object with explicit type
+export const Category: { [key in CategoryKey]: string } = {
+	'софт-скил': 'soft',
+	другое: 'other',
+	кнопка: 'button',
+	дополнительное: 'additional',
+	'хард-скил': 'hard',
+};

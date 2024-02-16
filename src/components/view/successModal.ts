@@ -1,4 +1,5 @@
 import { ISuccessOrder } from '../../types';
+import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/component';
 import { IEvents } from '../base/events';
 
@@ -17,10 +18,14 @@ export class SuccessModal
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
 		this.events = events;
-		this.descriptionElement = this.container.querySelector(
-			'.order-success__description'
+		this.descriptionElement = ensureElement<HTMLElement>(
+			'.order-success__description',
+			this.container
 		);
-		this.buttonElement = this.container.querySelector('.order-success__close');
+		this.buttonElement = ensureElement<HTMLButtonElement>(
+			'.order-success__close',
+			this.container
+		);
 
 		this.buttonElement.addEventListener('click', () => {
 			this.events.emit('order:done');

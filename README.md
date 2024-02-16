@@ -47,7 +47,7 @@ npm run build
 
 В качестве основы для архитектуры приложения выбран паттерн MVP (Model-View-Presenter).
 
-**Model:** при разработке мы придерживается подхода single model, то есть одна модель данных на все приложение.
+**Model:** при разработке мы придерживаемся подхода single model, то есть одна модель данных на все приложение.
 
 **View**: в приложении множество классов, которые находятся в слое view. Они отвечают за отображение UI и взаимодействия с ним.
 
@@ -140,7 +140,7 @@ export interface ISuccessOrder {
 
     **Методы класса:**
 
-    - `protected **handleResponse**(response: Response)` - возвращает ответ из сервера в формате JSON. При возникновении ошибки - обрабатывает ее. Данный метод вызывается из всех остальных методов
+    - `protected handleResponse(response: Response)` - возвращает ответ сервера в формате JSON. При возникновении ошибки - обрабатывает ее. Данный метод вызывается из всех остальных методов
     - `**get**(uri: string)` - принимает путь, возвращает информацию от сервера
     - `**post**(uri: string, data: object, method: ApiPostMethods = 'POST')`- принимает путь и данные для отправки на сервер, возвращает информацию от сервера
 
@@ -156,12 +156,12 @@ export interface ISuccessOrder {
 
     **Методы класса:**
 
-    - `**on**<T extends object>(eventName: EventName), callBack: (event: T) => void): void` : подписывает коллбек функцию на определенное событие. Если события не существует, то создает его.
-    - `**off**(eventName: EventName, callback: Subscriber): void` : удаляет подписку на событие. Если больше нет других подписок, то удаляет событие
-    - `**emit**<T extends object>(eventName: string, data?: T): void` : отправляет событие всем подписчикам. Если eventName соответствует RegExp или строке, выполняются соответствующие коллбеки.
-    - `**onAll**(callback: (event: EmitterEvent) => void): void` : подписывает коллбэк на все события, создаваемые экземпляром.
-    - `**offAll**(): void` : удаляет все подписки вызванные экземпляром
-    - `**trigger**<T extends object>(eventName: string, context?: Partial<T>): (data: T) => void` : cоздает и возвращает функцию триггера для определенного события, которая при вызове генерирует событие с предоставленными данными и контекстом.
+    - `on<T extends object>(eventName: EventName), callBack: (event: T) => void): void` : подписывает коллбек функцию на определенное событие. Если события не существует, то создает его.
+    - `off(eventName: EventName, callback: Subscriber): void` : удаляет подписку на событие. Если больше нет других подписок, то удаляет событие
+    - `emit<T extends object>(eventName: string, data?: T): void` : отправляет событие всем подписчикам. Если eventName соответствует RegExp или строке, выполняются соответствующие коллбеки.
+    - `onAll(callback: (event: EmitterEvent) => void): void` : подписывает коллбэк на все события, создаваемые экземпляром.
+    - `offAll(): void` : удаляет все подписки вызванные экземпляром
+    - `trigger<T extends object>(eventName: string, context?: Partial<T>): (data: T) => void` : cоздает и возвращает функцию триггера для определенного события, которая при вызове генерирует событие с предоставленными данными и контекстом.
 - **Component** - абстрактный класс, который является базовым классом для создания UI компонентов. Он содержит методы, которые эффективно манипулируют DOM элементами
     
     **Конструктор класса:**
@@ -174,32 +174,32 @@ export interface ISuccessOrder {
     
     **Методы класса:**
     
-    - `**toggleClass**(element: HTMLElement, className: string, force?: boolean): void` : переключает класс указанного элемента. Также можно указать логический параметр Force для явного добавления или удаления класса.
-    - `**setText**(element: HTMLElement, value: unknown): void` : устанавливает текстовое содержимое указанного элемента в заданное значение.
-    - `**setDisabled**(element: HTMLElement, state: boolean): void` : активирует или деактивирует указанный элемент в зависимости от предоставленного состояния.
-    - `**setHidden**(element: HTMLElement): void` : скрывает указанный элемент.
-    - `**setVisible**(element: HTMLElement): void` : показывает указанный элемент
-    - `**setImage**(element: HTMLImageElement, src: string, alt?: string): void` устанавливает источник и алтернативный текст для картинки
-    - `**render**(data?: Partial<T>): HTMLElement` : рендерит компонент, при необходимости объединяя предоставленные данные со свойствами компонента. Возвращает корневой элемент контейнера.
+    - `toggleClass**(element: HTMLElement, className: string, force?: boolean): void` : переключает класс указанного элемента. Также можно указать логический параметр Force для явного добавления или удаления класса.
+    - `setText(element: HTMLElement, value: unknown): void` : устанавливает текстовое содержимое указанного элемента в заданное значение.
+    - `setDisabled(element: HTMLElement, state: boolean): void` : активирует или деактивирует указанный элемент в зависимости от предоставленного состояния.
+    - `setHidden(element: HTMLElement): void` : скрывает указанный элемент.
+    - `setVisible(element: HTMLElement): void` : показывает указанный элемент
+    - `setImage(element: HTMLImageElement, src: string, alt?: string): void` устанавливает источник и алтернативный текст для картинки
+    - `render(data?: Partial<T>): HTMLElement` : рендерит компонент, при необходимости объединяя предоставленные данные со свойствами компонента. Возвращает корневой элемент контейнера.
 - **Presenter** - абстрактный класс, который является базовым классом для всех презентеров
-    
+
     **Конструктор класса:**
-    
-    Конструктор принимает от 3х до 5-ти аргументов. 3 - обязательные: это модель, eventEmitter и модальное окно. Далее идут от одного до трех необязательных view классов.
-    
+
+    Конструктор принимает от 3х до 5-ти аргументов. 3 - обязательные: это модель, eventEmitter и модальное окно. Далее идут от одного до трех необязательных view классов. View классы могут быть разноплановыми - это может быть как форма оформления заказа, которая пойдет в modal window контент, так и корзина товаров. В решении использована нумерация, так как у всех презентеров нет единого паттерна принятия в аргументы элементов слоя view. У презентера есть дженерики - V, V2 и V3 - при реализации класса их нужно уточнить. Например, `<IOrderForm, IContactsForm, ISuccessModal>`.
+
     **Поля класса:**
-    
+
     - `protected _events`: IEvents;
     - `protected _model`: IAppModel;
     - `protected _modal`: Modal;
     - `protected _view?`: V;
     - `protected _view2?`: V2;
     - `protected _view3?`: V3
-    
+
     **Методы класса:**
-    
+
     собственных методов нет
-    
+
 
 ### Класс: Project Api
 
@@ -293,7 +293,7 @@ interface IAppModel {
 
     **Поля класса:**
 
-    - `protected _card`: ICard;
+    - `_card`: ICard;
     - `events`: IEvent;
     - `protected _titleElement`: HTMLElement;
     - `protected _imageElement`: HTMLImageElement;
@@ -306,19 +306,19 @@ interface IAppModel {
     - `setCategory(category: string): void` : устанавливает категорию карточки;
     - `setPrice(price: number): void` : устанавливает цену товара;
 - **Form**<T> extends Component<IFormState> - основа для форм заказа
-    
+
     **Конструктор класса:**
-    
+
     Принимает элемент формы, а также EventEmitter. Также вешает слушатели событий на input элементы и на кнопку submit;
-    
+
     **Поля класса:**
-    
+
     - `protected _submit`: HTMLButton
     - `protected _errors`: HTMLElement
-    
+
     **Методы класса:**
-    
-    - `protected **onInputChange**(field: keyof T, value: string)` : реагирует на изменения в Input элементах формы
+
+    - `protected onInputChange(field: keyof T, value: string)` : реагирует на изменения в Input элементах формы
     - `set valid(value: boolean)` : устанавливает валидность формы
     - `set errors(value: string[])` : устанавливает ошибки формы
     - `render(state: Partial<T> & IFormState)` : рендерит форму
@@ -370,13 +370,15 @@ interface IAppModel {
     - `private listElement`: HTMLElement;
     - `private totalSumElement`: HTMLElement;
     - `private buttonElement`: HTMLElement;
+    - `private counterElement` : HTMLElement
     - `private events`: IEvent
     
     **Методы класса:**
     
     - `private updateTotalSum(): void` : обновляет цену при добавлении/удалении карточек из корзины
     - `private updateOrderData(): void` : обновляет данные в this.orderData и передает их в модель
-    - `public updateView(*shoppingListItems*: IShoppingListItem[]): void`: обновляет элементы в корзине после добавления/удаления
+    - `public updateView(shoppingListItems: IShoppingListItem[]): void`: обновляет элементы в корзине после добавления/удаления
+    - `protected toggleButton(empty: boolean)` : активирует и деактивирует кнопку "оформить" в зависимости от того, пустая корзина или нет
 - **ShoppingListItemView** extends Component - нужен для рендера элементов корзины
     
     **Конструктор класса:**
@@ -437,7 +439,7 @@ interface IAppModel {
     **Поля класса:**
 
     - `private descriptionElement`: HTMLElement;
-    - `private buttonElement**`: HTMLButtonElement;
+    - `private buttonElement`: HTMLButtonElement;
     - `private events`: IEvents;
 
     **Методы класса:**
@@ -458,7 +460,7 @@ interface IAppModel {
 
     **Методы класса**
 
-    - `loadCards**(): void` : в ответ на событие cards:fetched запускается эта функция, которая создает каждую карточку и выводит ее в UI
+    - `loadCards(): void` : в ответ на событие cards:fetched запускается эта функция, которая создает каждую карточку и выводит ее в UI
     - `handleOpenModal(cardInfo: ICard): void` : передает данные о нажатой карточке в модальное окно и в модель
 - **ShoppingListPresenter** extends Presenter<ShoppingListView> - пресентер для связи AppModel и ShoppingListView;
 
@@ -468,10 +470,10 @@ interface IAppModel {
 
     **Методы класса:**
 
-    - `handleAddToShoppingList**(item: IShoppingListItem): void` - добавляет элемент в корзину, отправляет в модель и вызывает вызывает updateView()
+    - `handleAddToShoppingList(item: IShoppingListItem): void` - добавляет элемент в корзину, отправляет в модель и вызывает вызывает updateView()
     - `handleRemoveFromShoppingList(id: string): void` - удаляет элемент из корзины, отправляет в модель и вызывает updateView()
-    - `handleOrderPlacement**(): void` : передает информацию о заказе, начинает процесс оформления
-    - `**handleOpenModal**(): void`: открывает модальное окно корзины
+    - `handleOrderPlacement(): void` : передает информацию о заказе, начинает процесс оформления
+    - `**handleOpenModal(): void`: открывает модальное окно корзины
 - **OrderPresenter** extends Presenter<IOrderForm, IContactsForm, SuccessModal> - презентер для связи AppModel и всех форм;
 
     **Конструктор класса:**
@@ -486,13 +488,12 @@ interface IAppModel {
     **Методы класса:**
 
     - `handleOpenOrderForm(): void` : открывает окно с формой заказа
-    - `handleOpenContactsForm*(): void` : открывает окно с формой заказа
-    - `handleChangeInput(): void` : подставляет значения из формы в переменную с данными заказа
-    - `setOrderField(): void` : подставляет значения из формы в переменную с данными заказа
+    - `handleOpenContactsForm(): void` : открывает окно с формой заказа
+    - `handleChangeInput<K extends keyof IOrderData>(): void` : подставляет значения из формы в переменную с данными заказа
     - `validateOrder(): boolean` :проверяет, все ли нужные для заказа данные есть и передает ошибку, если чего то не хватает
-    - `handleErrors**(): void` : передает тексты ошибок
+    - `handleErrors(): void` : передает тексты ошибок
     - `handleSendOrderDetails(): void` : отправляет заказ на сервер через метод модели
-    - `handleOrderFinish(): void` : заканчивает процесс оформления заказа
+    - `handleClearShoppingList()`: вызывается методом handleSendOrderDetails() и очищает корзину товаров в модели
 
 ## Описание событий
 

@@ -2,6 +2,7 @@ import { ICard, IShoppingListItem } from '../../types';
 import { IEvents } from '../base/events';
 import { Card } from '../common/card';
 import { ButtonState } from '../../types';
+import { ensureElement } from '../../utils/utils';
 
 export class CardPreview extends Card {
 	private descriptionElement: HTMLElement;
@@ -10,10 +11,16 @@ export class CardPreview extends Card {
 	constructor(container: HTMLElement, card: ICard, events: IEvents) {
 		super(container, card, events);
 
-		this.descriptionElement = this.container.querySelector('.card__text')!;
-		this.buttonElement = this.container.querySelector('.card__button')!;
+		this.descriptionElement = ensureElement<HTMLElement>(
+			'.card__text',
+			this.container
+		);
+		this.buttonElement = ensureElement<HTMLButtonElement>(
+			'.card__button',
+			this.container
+		);
 
-		this.buttonElement.addEventListener('click', (event) => {
+		this.buttonElement.addEventListener('click', () => {
 			const data: IShoppingListItem = {
 				id: card.id,
 				title: card.title,
@@ -29,6 +36,10 @@ export class CardPreview extends Card {
 				this.events.emit('card:add', { ...data });
 			}
 		});
+
+		if (!this.card.price) {
+			this.buttonElement.setAttribute('disabled', '');
+		}
 	}
 
 	set button(buttonText: ButtonState) {

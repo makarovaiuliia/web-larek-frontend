@@ -31,33 +31,25 @@ export class OrderPresenter extends Presenter<
 	}
 
 	handleOpenOrderForm() {
-		if (this._model.shoppingList.length > 0) {
-			this.orderDetails = {
-				payment: 'card',
+		this.orderDetails = {
+			payment: 'card',
+			address: '',
+			email: '',
+			phone: '',
+			total: this._model.shoppingList.reduce(
+				(sum, item) => sum + item.price,
+				0
+			),
+			items: this._model.shoppingList.map((item) => item.id),
+		};
+		this._modal.render({
+			content: this._view.render({
 				address: '',
-				email: '',
-				phone: '',
-				total: this._model.shoppingList.reduce(
-					(sum, item) => sum + item.price,
-					0
-				),
-				items: this._model.shoppingList
-					.map((item) => {
-						if (item.price) {
-							return item.id;
-						}
-					})
-					.filter((item) => item),
-			};
-			this._modal.render({
-				content: this._view.render({
-					address: '',
-					payment: 'card',
-					valid: false,
-					errors: [],
-				}),
-			});
-		}
+				payment: 'card',
+				valid: false,
+				errors: [],
+			}),
+		});
 	}
 
 	handleOpenContactsForm() {
@@ -115,21 +107,19 @@ export class OrderPresenter extends Presenter<
 				content: this._view3.render({ ...data }),
 			});
 		});
+
+		this.handleClearShoppingList();
 	}
 
-	handleOrderFinish() {
-		this._modal.close();
+	handleClearShoppingList() {
 		this._model.clearShoppingList();
 		this.orderDetails = {
-			payment: '',
+			payment: 'card',
 			address: '',
 			email: '',
 			phone: '',
-			total: this._model.shoppingList.reduce(
-				(sum, item) => sum + item.price,
-				0
-			),
-			items: this._model.shoppingList.map((item) => item.id),
+			total: 0,
+			items: [],
 		};
 	}
 }
