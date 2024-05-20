@@ -1,68 +1,70 @@
-# Web-ларёк | documentation
+# Web-Laryok | Documentation
 
-## Используемый стек
+[deploy](https://makarovaiuliia.github.io/web-larek-frontend/)
+
+## Tech Stack
 
 - HTML
 - TypeScript
 - SCSS
-- WebPack
+- Webpack
 - ESLint
 
-## Структура проекта
+## Project Structure
 
-- src/ — исходные файлы проекта
-- src/components/ — папка с JS компонентами
-- src/components/base/ — папка с базовым кодом
+- `src/` — project source files
+- `src/components/` — folder with JS components
+- `src/components/base/` — folder with base code
 
-### Важные файлы
+### Key Files
 
-- src/pages/**index.html** — HTML-файл главной страницы
-- src/types/**index.ts** — файл с типами
-- src/**index.ts** — точка входа приложения
-- src/scss/**styles.scss** — корневой файл стилей
-- src/utils/**constants.ts** — файл с константами
-- src/utils/**utils.ts** — файл с утилитами
+- `src/pages/index.html` — HTML file for the main page
+- `src/types/index.ts` — file with types
+- `src/index.ts` — entry point of the application
+- `src/scss/styles.scss` — root styles file
+- `src/utils/constants.ts` — file with constants
+- `src/utils/utils.ts` — file with utilities
 
-## Установка и запуск
+## Installation and Launch
 
-Для **установки** проекта необходимо выполнить команды
+To **install** the project, run the following commands:
 
 ```bash
 npm install
 ```
 
-Для **запуска проекта** в режиме разработки выполнить команду:
+To **start the project** in development mode, run:
 
 ```bash
 npm run start
 ```
 
-**Сборка** проекта
+To **build** the project, run:
 
 ```bash
 npm run build
 ```
 
-## Описание архитектурного решения
+## Architectural Solution Description
 
-В качестве основы для архитектуры приложения выбран паттерн MVP (Model-View-Presenter).
+The application architecture is based on the MVP (Model-View-Presenter) pattern.
 
-**Model:** при разработке мы придерживаемся подхода single model, то есть одна модель данных на все приложение.
+**Model:** We follow the single model approach, meaning one data model for the entire application.
 
-**View**: в приложении множество классов, которые находятся в слое view. Они отвечают за отображение UI и взаимодействия с ним.
+**View:** The application contains numerous classes in the view layer responsible for displaying the UI and interacting with it.
 
-**Presenter**: всего презентеров в приложении 3:
-1. CardPresenter - связывает операции с карточками и модель,
-2. ShoppingListPresenter - связывает операции с корзиной и модель
-3. OrderPresenter - связывает модель и процесс оформления заказа.
+**Presenter:** There are three presenters in the application:
+1. **CardPresenter** - handles operations with cards and the model,
+2. **ShoppingListPresenter** - handles operations with the shopping cart and the model,
+3. **OrderPresenter** - connects the model and the order processing.
 
-## Описание ключевых типов данных
+## Key Data Types Description
 
-### Интерфейсы
+### Interfaces
 
 ```tsx
-/* Интерфейс хранения данных карточки, которую приложение получает из сервера
-и на основе которой заполняются карточки в HTML через слой View */
+/* Interface for storing card data, which the application receives from the server
+and uses to fill out cards in HTML through the View layer */
 
 export interface ICard {
 	id: string;
@@ -73,8 +75,8 @@ export interface ICard {
 	price: number | null;
 }
 
-/* Интерфейс элемента корзины покупок. Включает в себя id и price. Id - для
-отправки данных заказа на сервер, а price - чтобы посчитать итоговую сумму заказа */
+/* Interface for shopping cart items. Includes id and price. Id is for
+sending order data to the server, and price is to calculate the total order amount */
 
 export interface IShoppingListItem {
 	id: string;
@@ -82,9 +84,9 @@ export interface IShoppingListItem {
 	title: string;
 }
 
-/* Интерфейс хранения данных заказа */
+/* Interface for storing order data */
 
-export type PaymentMethod = 'онлайн' | 'при получении' | '';
+export type PaymentMethod = 'online' | 'on delivery' | '';
 
 export interface IFormState {
 	valid: boolean;
@@ -115,9 +117,9 @@ export interface IOrderData extends IOrderItems {
 }
 
 export type FormErrors = Partial<Record<keyof IOrderData, string>>;
-export type ButtonState = 'В корзину' | 'Убрать из корзины';
+export type ButtonState = 'Add to Cart' | 'Remove from Cart';
 
-/* Интерфейс удачного оформления заказа */
+/* Interface for successful order completion */
 
 export interface ISuccessOrder {
 	total: number;
@@ -125,69 +127,71 @@ export interface ISuccessOrder {
 }
 ```
 
-### Классы: Базовые классы
+### Classes: Base Classes
 
-В данном проекте присутствует несколько базовых классов:
+This project includes several base classes:
 
-- **Api** - базовый класс по работе с Api проекта
+- **Api** - base class for working with the project's API
 
-    **Поля класса**:
+    **Class Fields**:
 
     - `baseUrl`: string
     - `options`: RequestInit (headers)
 
-    Все поля заполняются при инициализации класса с помощью конструктора.
+    All fields are populated during class initialization using the constructor.
 
-    **Методы класса:**
+    **Class Methods**:
 
-    - `protected handleResponse(response: Response)` - возвращает ответ сервера в формате JSON. При возникновении ошибки - обрабатывает ее. Данный метод вызывается из всех остальных методов
-    - `**get**(uri: string)` - принимает путь, возвращает информацию от сервера
-    - `**post**(uri: string, data: object, method: ApiPostMethods = 'POST')`- принимает путь и данные для отправки на сервер, возвращает информацию от сервера
+    - `protected handleResponse(response: Response)` - returns the server response in JSON format. Handles errors if any occur. This method is called by all other methods.
+    - `get(uri: string)` - takes a path, returns information from the server.
+    - `post(uri: string, data: object, method: ApiPostMethods = 'POST')`- takes a path and data to send to the server, returns information from the server.
 
-    Примечание: от этого класса наследует класс ProjectApi, описанный далее.
+    Note: the ProjectApi class described below inherits from this class.
 
-- **EventEmitter** - брокер событий, базовый класс по работе с событиями
+- **EventEmitter** - event broker, base class for working with events
 
-    При инициализации создает общий брокер события для всего приложения. Он представляет слой presenter.
+    Initializes a common event broker for the entire application. It represents the presenter layer.
 
-    **Поля класса**:
+    **Class Fields**:
 
-    - `_events`: Map<EventName, Set<Subscriber>>, где eventName - это строка или регулярное выражение, а Subscriber - функция;
+    - `_events`: Map<EventName, Set<Subscriber>>, where EventName is a string or regular expression, and Subscriber is a function.
 
-    **Методы класса:**
+    **Class Methods**:
 
-    - `on<T extends object>(eventName: EventName), callBack: (event: T) => void): void` : подписывает коллбек функцию на определенное событие. Если события не существует, то создает его.
-    - `off(eventName: EventName, callback: Subscriber): void` : удаляет подписку на событие. Если больше нет других подписок, то удаляет событие
-    - `emit<T extends object>(eventName: string, data?: T): void` : отправляет событие всем подписчикам. Если eventName соответствует RegExp или строке, выполняются соответствующие коллбеки.
-    - `onAll(callback: (event: EmitterEvent) => void): void` : подписывает коллбэк на все события, создаваемые экземпляром.
-    - `offAll(): void` : удаляет все подписки вызванные экземпляром
-    - `trigger<T extends object>(eventName: string, context?: Partial<T>): (data: T) => void` : cоздает и возвращает функцию триггера для определенного события, которая при вызове генерирует событие с предоставленными данными и контекстом.
-- **Component** - абстрактный класс, который является базовым классом для создания UI компонентов. Он содержит методы, которые эффективно манипулируют DOM элементами
+    - `on<T extends object>(eventName: EventName, callBack: (event: T) => void): void`: subscribes a callback function to a specific event. If the event does not exist, it creates it.
+    - `off(eventName: EventName, callback: Subscriber): void`: removes the subscription to the event. If there are no other subscriptions, it deletes the event.
+    - `emit<T extends object>(eventName: string, data?: T): void`: sends the event to all subscribers. If EventName matches RegExp or a string, the corresponding callbacks are executed.
+    - `onAll(callback: (event: EmitterEvent) => void): void`: subscribes a callback to all events created by the instance.
+    - `offAll(): void`: removes all subscriptions triggered by the instance.
+    - `trigger<T extends object>(eventName: string, context?: Partial<T>): (data: T) => void`: creates and returns a trigger function for a specific event, which, when called, generates an event with the provided data and context.
+
+- **Component** - abstract class that serves as the base class for creating UI components. It contains methods that efficiently manipulate DOM elements.
     
-    **Конструктор класса:**
+    **Class Constructor:**
     
-    Конструктор принимает `**container**: HTMLElement` и инициализирует его.
+    The constructor takes `container: HTMLElement` and initializes it.
     
-    **Поля класса:**
+    **Class Fields:**
     
-    Собственных полей нет
+    No own fields.
     
-    **Методы класса:**
+    **Class Methods:**
     
-    - `toggleClass**(element: HTMLElement, className: string, force?: boolean): void` : переключает класс указанного элемента. Также можно указать логический параметр Force для явного добавления или удаления класса.
-    - `setText(element: HTMLElement, value: unknown): void` : устанавливает текстовое содержимое указанного элемента в заданное значение.
-    - `setDisabled(element: HTMLElement, state: boolean): void` : активирует или деактивирует указанный элемент в зависимости от предоставленного состояния.
-    - `setHidden(element: HTMLElement): void` : скрывает указанный элемент.
-    - `setVisible(element: HTMLElement): void` : показывает указанный элемент
-    - `setImage(element: HTMLImageElement, src: string, alt?: string): void` устанавливает источник и алтернативный текст для картинки
-    - `render(data?: Partial<T>): HTMLElement` : рендерит компонент, при необходимости объединяя предоставленные данные со свойствами компонента. Возвращает корневой элемент контейнера.
-- **Presenter** - абстрактный класс, который является базовым классом для всех презентеров
+    - `toggleClass(element: HTMLElement, className: string, force?: boolean): void`: toggles the specified class of the element. A boolean force parameter can be provided to explicitly add or remove the class.
+    - `setText(element: HTMLElement, value: unknown): void`: sets the text content of the specified element to the given value.
+    - `setDisabled(element: HTMLElement, state: boolean): void`: enables or disables the specified element based on the provided state.
+    - `setHidden(element: HTMLElement): void`: hides the specified element.
+    - `setVisible(element: HTMLElement): void`: shows the specified element.
+    - `setImage(element: HTMLImageElement, src: string, alt?: string): void`: sets the source and alternative text for the image.
+    - `render(data?: Partial<T>): HTMLElement`: renders the component, optionally merging the provided data with the component's properties. Returns the root container element.
 
-    **Конструктор класса:**
+- **Presenter** - abstract class that serves as the base class for all presenters.
 
-    Конструктор принимает от 3х до 5-ти аргументов. 3 - обязательные: это модель, eventEmitter и модальное окно. Далее идут от одного до трех необязательных view классов. View классы могут быть разноплановыми - это может быть как форма оформления заказа, которая пойдет в modal window контент, так и корзина товаров. В решении использована нумерация, так как у всех презентеров нет единого паттерна принятия в аргументы элементов слоя view. У презентера есть дженерики - V, V2 и V3 - при реализации класса их нужно уточнить. Например, `<IOrderForm, IContactsForm, ISuccessModal>`.
+    **Class Constructor:**
 
-    **Поля класса:**
+    The constructor takes 3 to 5 arguments. The 3 required ones are the model, eventEmitter, and modal window. Additional optional arguments include one to three view classes. The view classes can vary, such as an order form for modal window content or a shopping cart. The solution uses numbering since not all presenters follow a unified pattern for accepting view layer elements as arguments. The presenter has generics - V, V2, and V3 - that need to be specified when implementing the class, e.g., `<IOrderForm, IContactsForm, ISuccessModal>`.
+
+    **Class Fields:**
 
     - `protected _events`: IEvents;
     - `protected _model`: IAppModel;
@@ -196,14 +200,13 @@ export interface ISuccessOrder {
     - `protected _view2?`: V2;
     - `protected _view3?`: V3
 
-    **Методы класса:**
+    **Class Methods:**
 
-    собственных методов нет
+    No own methods.
 
+### Class: Project Api
 
-### Класс: Project Api
-
-Для облегчения работы с Api создается наследник класса Api - ProjectApi. Он реализует следующий интерфейс:
+To facilitate working with the API, the ProjectApi class inherits from the Api class. It implements the following interface:
 
 ```tsx
 export interface IProjectApi {
@@ -213,23 +216,23 @@ export interface IProjectApi {
 }
 ```
 
-**Конструктор класса:**
+**Class Constructor:**
 
-Класс принимает на входе помимо указанных в базовом классе параметров, параметр cdn для путей изображений. baseUrl и options уходят в super();
+The class takes an additional parameter `cdn` for image paths, besides the parameters specified in the base class. `baseUrl` and `options` are passed to `super()`.
 
-**Поля класса:**
+**Class Fields:**
 
-- `readonly cdn:` string;
+- `readonly cdn: string`;
 
-**Методы класса:**
+**Class Methods:**
 
-- `getCardList: () => Promise<ICard[]>` : получает массив карточек с сервера
-- `getCard: (id: string) => Promise<ICard>` : получает информацию о конкретной карточке
-- `postOrder: (order: IOrderData) => Promise<ISuccessOrder>` : отправляет заказ на сервер
+- `getCardList: () => Promise<ICard[]>`: retrieves an array of cards from the server.
+- `getCard: (id: string) => Promise<ICard>`: retrieves information about a specific card.
+- `postOrder: (order: IOrderData) => Promise<ISuccessOrder>`: sends the order to the server.
 
-### Класс: слой Model
+### Class: Model Layer
 
-Слой Model представлен классом AppModel, он имплементирует следующий интерфейс:
+The model layer is represented by the AppModel class, which implements the following interface:
 
 ```tsx
 interface IAppModel {
@@ -243,55 +246,58 @@ interface IAppModel {
 }
 ```
 
-**Конструктор класса:**
+**Class Constructor:**
 
-Класс принимает на входе инициализированные классы ProjectApi и EventEmitter, а также запускает метод `initialize()`
+The class takes initialized instances of ProjectApi and EventEmitter, and also calls the `initialize()` method.
 
-**Поля класса:**
+**Class Fields:**
 
 - `protected projectAPI`: IProjectApi;
-- `protected events:` : IEvents;
-- `cardCatalog`: ICard[];
-- `shoppingList`: IShoppingListItem[];
+- `protected events: IEvents;
+- `cardCatalog: ICard[];
+- `shoppingList: IShoppingListItem[];
 
-**Методы класса:**
+**Class Methods:**
 
-- `private initialize():void` :вызывается из конструктора и использует fetchCards();
-- `private fetchCards()`: использует класс API для того, чтобы получить массив карточек с сервера.
-- `addToShoppingList(item: IShoppingListItem)`: добавляет карточку в корзину, а также в LocalStorage
-- `removeFromShoppingList(itemId: string)`: удаляет карточку из корзины по идентификатору, а также из LocalStorage
-- `getShoppingList(): void` : выгружает карточки из localStorage и заносит в переменную shoppingList
-- `placeOrder**(orderData: IOrderData)`: делает заказ, используя API.
-- `clearShoppingList(): void` : очищает корзину из модели и localStorage
+- `private initialize(): void`: called from the constructor and uses `fetchCards()`.
+- `private fetchCards()`: uses the API class to retrieve an array of cards from the
 
-### Класс: слой View
+ server.
+- `addToShoppingList(item: IShoppingListItem)`: adds a card to the shopping cart and to LocalStorage.
+- `removeFromShoppingList(itemId: string)`: removes a card from the shopping cart by its ID and from LocalStorage.
+- `getShoppingList(): void`: loads cards from LocalStorage and stores them in the `shoppingList` variable.
+- `placeOrder(orderData: IOrderData)`: places an order using the API.
+- `clearShoppingList(): void`: clears the shopping cart in the model and LocalStorage.
 
-Общий класс:
+### Class: View Layer
 
-- **Modal** extends Component - представляет собой основу для создания и управления модальными окнами в приложении.
+Common class:
 
-    **Конструктор класса:**
+- **Modal** extends Component - serves as the foundation for creating and managing modal windows in the application.
 
-    Принимает container и events. В контейнере ищет кнопку закрытия - `_*closeButton`, и контент - `_content`.  На кнопку и на контейнер ставит обработчик событий, который закрывает модальное окно при нажатии на кнопку и на все, что находится вне модального окна. 
+    **Class Constructor:**
 
-    **Поля класса:**
+    Takes a container and events. Within the container, it finds the close button (`_closeButton`) and content (`_content`). Event listeners are set on the close button and the container to close the modal when clicking the button or anything outside the modal window.
+
+    **Class Fields:**
 
     - `protected _closeButton`: HTMLButtonElement;
     - `protected _content`: HTMLElement;
 
-    **Методы класса:**
+    **Class Methods:**
 
-    - `set content(value: HTMLElement)` ****: устанавливает или обновляет контент, отображаемый в модальном окне;
-    - `open(): void` :открывает модальное окно;
-    - `close(): void` :закрывает модальное окно;
-    - `render(data: IModalData): HTMLElement` :отображает модальное окно с предоставленными данными. Автоматически открывает модальное окно после рендеринга.
-- **Card** extends Component - основа для карточек в каталоге и в модальном окне
+    - `set content(value: HTMLElement)`: sets or updates the content displayed in the modal window.
+    - `open(): void`: opens the modal window.
+    - `close(): void`: closes the modal window.
+    - `render(data: IModalData): HTMLElement`: displays the modal window with the provided data. Automatically opens the modal window after rendering.
 
-    **Конструктор класса:**
+- **Card** extends Component - foundation for cards in the catalog and in the modal window.
 
-    На входе класс принимает `HTMLElement`, который будет играть роль контейнера, он отправляется в `super()`. Далее с помощью шаблона и querySelector заполняются поля класса.
+    **Class Constructor:**
 
-    **Поля класса:**
+    Takes `HTMLElement` as a container, which is passed to `super()`. Fields are filled using a template and `querySelector`.
+
+    **Class Fields:**
 
     - `_card`: ICard;
     - `events`: IEvent;
@@ -300,219 +306,228 @@ interface IAppModel {
     - `protected _categoryElement`: HTMLElement;
     - `protected _priceElement`: HTMLElement;
 
-    **Методы класса**
-    - `setTitle(title: string)`: void: устанавливает название карточки;
-    - `setImage(src: string): void` : устанавливает данные изображения;
-    - `setCategory(category: string): void` : устанавливает категорию карточки;
-    - `setPrice(price: number): void` : устанавливает цену товара;
-- **Form**<T> extends Component<IFormState> - основа для форм заказа
+    **Class Methods:**
+    - `setTitle(title: string)`: void: sets the card's title.
+    - `setImage(src: string)`: void: sets the image source.
+    - `setCategory(category: string)`: void: sets the card's category.
+    - `setPrice(price: number)`: void: sets the item's price.
 
-    **Конструктор класса:**
+- **Form<T>** extends Component<IFormState> - foundation for order forms.
 
-    Принимает элемент формы, а также EventEmitter. Также вешает слушатели событий на input элементы и на кнопку submit;
+    **Class Constructor:**
 
-    **Поля класса:**
+    Takes a form element and an EventEmitter. Sets event listeners on input elements and the submit button.
+
+    **Class Fields:**
 
     - `protected _submit`: HTMLButton
     - `protected _errors`: HTMLElement
 
-    **Методы класса:**
+    **Class Methods:**
 
-    - `protected onInputChange(field: keyof T, value: string)` : реагирует на изменения в Input элементах формы
-    - `set valid(value: boolean)` : устанавливает валидность формы
-    - `set errors(value: string[])` : устанавливает ошибки формы
-    - `render(state: Partial<T> & IFormState)` : рендерит форму
+    - `protected onInputChange(field: keyof T, value: string)`: reacts to changes in the form's input elements.
+    - `set valid(value: boolean)`: sets the form's validity.
+    - `set errors(value: string[])`: sets the form's errors.
+    - `render(state: Partial<T> & IFormState)`: renders the form.
 
-**Классы отображения**
+**Display Classes**
 
-Карточки
+Cards
 
-- **CardView** extends Card - нужен для отображения карточек в каталоге
+- **CardView** extends Card - for displaying cards in the catalog.
 
-    **Конструктор класса:**
+    **Class Constructor:**
 
-    Вызывает super, а также ставить слушатель событий на саму карточку, при нажатии эмитирует событие `card:select`.
+    Calls `super` and sets an event listener on the card itself, emitting a `card:select` event when clicked.
 
-    **Поля класса:**
+    **Class Fields:**
 
-    собственных полей нет
+    No own fields.
 
-    **Методы класса**
+    **Class Methods:**
 
-    собственных методов нет
+    No own methods.
 
-- **CardPreview** extends Card - нужен для отображения карточек в модальном окне
+- **CardPreview** extends Card - for displaying cards in the modal window.
 
-    **Конструктор класса**
+    **Class Constructor:**
 
-    Вызывает super, а также ставить слушатель событий на кнопку “В корзину”
+    Calls `super` and sets an event listener on the "Add to Cart" button.
 
-    **Поля класса:**
+    **Class Fields:**
 
-    - private `descriptionElement:` HTMLElement;
-    - private `buttonElement:` HTMLButtonElement;
+    - `private descriptionElement`: HTMLElement;
+    - `private buttonElement`: HTMLButtonElement;
 
-    **Методы класса:**
+    **Class Methods:**
 
-    - `set description(title: string)`: void: устанавливает описание карточки;
-    - `set button(buttonText: ButtonState): void`: устанавливает состояние кнопки добавления в корзину
+    - `set description(title: string)`: void: sets the card's description.
+    - `set button(buttonText: ButtonState)`: void: sets the "Add to Cart" button state.
 
-Корзина
+Shopping Cart
 
-- **ShoppingListView**  extends Component - рендерит корзину с товарами
+- **ShoppingListView** extends Component - renders the shopping cart with items.
 
-    **Конструктор класса:**
+    **Class Constructor:**
 
-    Конструктор получает на входе HTMLElement корзины, он отправляется в super(), далее внутри контейнера находятся listElement, buttonElement и totalPriceElement. На buttonElement устанавливается обработчик событий, который эмитирует событие `order:start`.
+    Takes the shopping cart's HTMLElement as a parameter, which is passed to `super()`. Finds `listElement`, `buttonElement`, and `totalPriceElement` within the container. Sets an event listener on `buttonElement` to emit an `order:start` event.
 
-    **Поля класса:**
+    **Class Fields:**
 
     - `private listElement`: HTMLElement;
     - `private totalSumElement`: HTMLElement;
     - `private buttonElement`: HTMLElement;
-    - `private counterElement` : HTMLElement
-    - `private events`: IEvent
+    - `private counterElement`: HTMLElement;
+    - `private events`: IEvent;
     
-    **Методы класса:**
+    **Class Methods:**
     
-    - `private updateTotalSum(): void` : обновляет цену при добавлении/удалении карточек из корзины
-    - `private updateOrderData(): void` : обновляет данные в this.orderData и передает их в модель
-    - `public updateView(shoppingListItems: IShoppingListItem[]): void`: обновляет элементы в корзине после добавления/удаления
-    - `protected toggleButton(empty: boolean)` : активирует и деактивирует кнопку "оформить" в зависимости от того, пустая корзина или нет
-- **ShoppingListItemView** extends Component - нужен для рендера элементов корзины
+    - `private updateTotalSum(): void`: updates the total price when cards are added/removed from the cart.
+    - `private updateOrderData(): void`: updates order data in `this.orderData` and sends it to the model.
+    - `public updateView(shoppingListItems: IShoppingListItem[]): void`: updates the cart items after adding/removing.
+    - `protected toggleButton(empty: boolean)`: enables or disables the "place order" button depending on whether the cart is empty.
+
+- **ShoppingListItemView** extends Component - renders cart items.
     
-    **Конструктор класса:**
+    **Class Constructor:**
     
-    Конструктор получает на входе HTMLElement корзины, он отправляется в super(), далее внутри контейнера находятся indexElement, priceElement и titleElement и buttonElement. На buttonElement вешается слушатель событий, который при клике на кнопку эмитирует событие `card:remove`.
+    Takes the shopping cart's HTMLElement as a parameter, which is passed to `super()`. Finds `indexElement`, `priceElement`, `titleElement`, and `buttonElement` within the container. Sets an event listener on `buttonElement` to emit a `card:remove` event when clicked.
     
-    **Поля класса:**
+    **Class Fields:**
     
-    - `private indexElement`: HTMLElement
+    - `private indexElement`: HTMLElement;
     - `private titleElement`: HTMLElement;
     - `private priceElement`: HTMLElement;
     - `private buttonElement`: HTMLButtonElement;
     
-    **Методы класса:**
+    **Class Methods:**
     
-    - `setTitle(title: string)`: void: устанавливает название карточки;
-    - `setIndex(index: string): void` : устанавливает индекс;
-    - `setPrice(price: number): void` : устанавливает цену товара;
+    - `setTitle(title: string)`: void: sets the card's title.
+    - `setIndex(index: string)`: void: sets the index.
+    - `setPrice(price: number)`: void: sets the item's price.
 
+Order Forms
 
-Формы заказа
+- **OrderForm** extends Form<IOrderForm> - renders the first part of the order form.
 
-- **OrderForm** extends Form<IOrderForm> - рендерит первую часть формы заказа
+    **Class Constructor:**
 
-    **Конструктор класса:**
+    Takes the form element and EventEmitter and passes them to `super()`. Sets event listeners on payment method buttons.
 
-    Принимает элемент формы, а также EventEmitter и отправляет в super(). Также вешает слушатели событий на кнопки выбора способа оплаты
+    **Class Fields:**
 
-    **Поля класса:**
+    - `private buttonElements`: HTMLButtonElement[];
 
-    - `private buttonElements:` HTMLButtonElement[];
+    **Class Methods:**
 
-    **Методы класса:**
+    - `set address(value: string)`: sets the address.
+    - `set payment(value: PaymentMethod)`: sets the payment method.
+    - `handlePaymentChange(event: IEvent)`: reacts to payment method button clicks.
 
-    - `set address(value: string)` : устанавливает адрес
-    - `set payment(value: PaymentMethod)` : устанавливает метод оплаты
-    - `handlePaymentChange(event: IEvent)`: реагирует на нажатие кнопок выбора способа оплаты
-- **ContactsForm** extends Form<IContactsForm> - рендерит вторую часть формы заказа
+- **ContactsForm** extends Form<IContactsForm> - renders the second part of the order form.
 
-    **Конструктор класса:**
+    **Class Constructor:**
 
-    Принимает элемент формы, а также EventEmitter и отправляет в super(). Также вешает слушатели событий на кнопки выбора способа оплаты
+    Takes the form element and EventEmitter and passes them to `super()`. Sets event listeners on payment method buttons.
 
-    **Поля класса:**
+    **Class Fields:**
 
-    нет собственных полей
+    No own fields.
 
-    **Методы класса:**
+    **Class Methods:**
 
-    - `set phone(value: string)` : устанавливает телефон
-    - `set email(value: PaymentMethod)` : устанавливает почту
-- **SuccessModal** extends Component<ISuccessOrder> - рендерит модальное окно с успешным итогом заказа
+    - `set phone(value: string)`: sets the phone number.
+    - `set email(value: PaymentMethod)`: sets the email.
 
-    **Конструктор класса:**
+- **SuccessModal** extends Component<ISuccessOrder> - renders the modal window with the successful order result.
 
-    Принимает контейнер и отправляет в super(), а также EventEmitter. Затем щет внутри элемент, где расположена информация о стоимость заказа и кнопку “за новыми покупками”. Также вешает слушатели событий на кнопку “за новыми покупками”.
+    **Class Constructor:**
 
-    **Поля класса:**
+    Takes the container and EventEmitter and passes them to `super()`. Finds the element with order cost information and the "new shopping" button. Sets event listeners on the "new shopping" button.
+
+    **Class Fields:**
 
     - `private descriptionElement`: HTMLElement;
     - `private buttonElement`: HTMLButtonElement;
     - `private events`: IEvents;
 
-    **Методы класса:**
+    **Class Methods:**
 
-    - `set total(value: string)` : устанавливает общую стоимость заказа в descriptionElement
+    - `set total(value: string)`: sets the total order cost in `descriptionElement`.
 
-### Классы: слой Presenter
+### Presenter Layer Classes
 
-- **CardPresenter** extends Presenter - презентер для связи AppModel и CardView;
+- **CardPresenter** extends Presenter - presenter for connecting AppModel and CardView.
 
-    **Конструктор класса:**
+    **Class Constructor:**
 
-    Принимает экземпляры классов AppModel, Modal, EventEmitter, которе инициализируются при запуске кода.
+    Takes instances of AppModel, Modal, and EventEmitter, which are initialized when the code runs.
 
-    **Поля класса:**
+    **Class Fields:**
 
-    Собственных полей нет
+    No own fields.
 
-    **Методы класса**
+    **Class Methods:**
 
-    - `loadCards(): void` : в ответ на событие cards:fetched запускается эта функция, которая создает каждую карточку и выводит ее в UI
-    - `handleOpenModal(cardInfo: ICard): void` : передает данные о нажатой карточке в модальное окно и в модель
-- **ShoppingListPresenter** extends Presenter<ShoppingListView> - пресентер для связи AppModel и ShoppingListView;
+    - `loadCards(): void`: in response to the `cards:fetched` event, this function creates each card and displays it in the UI.
+    - `handleOpenModal(cardInfo: ICard): void`: passes the clicked card's data to the modal window and the model.
 
-    **Конструктор класса:**
+- **ShoppingListPresenter** extends Presenter<ShoppingListView> - presenter for connecting AppModel and ShoppingListView.
 
-    Принимает общую Модель, EventEmitter, Modal и ShoppingListView. Они же уходят в super().
+    **Class Constructor:**
 
-    **Методы класса:**
+    Takes the common Model, EventEmitter, Modal, and ShoppingListView and passes them to `super()`.
 
-    - `handleAddToShoppingList(item: IShoppingListItem): void` - добавляет элемент в корзину, отправляет в модель и вызывает вызывает updateView()
-    - `handleRemoveFromShoppingList(id: string): void` - удаляет элемент из корзины, отправляет в модель и вызывает updateView()
-    - `handleOrderPlacement(): void` : передает информацию о заказе, начинает процесс оформления
-    - `**handleOpenModal(): void`: открывает модальное окно корзины
-- **OrderPresenter** extends Presenter<IOrderForm, IContactsForm, SuccessModal> - презентер для связи AppModel и всех форм;
+    **Class Methods:**
 
-    **Конструктор класса:**
+    - `handleAddToShoppingList(item: IShoppingListItem): void`: adds an item to the cart, sends it to the model, and calls `updateView()`.
+    - `handleRemoveFromShoppingList(id: string): void`: removes an item from the cart, sends it to the model, and calls `updateView()`.
+    - `handleOrderPlacement(): void`: passes order information and starts the ordering process.
+    - `handleOpenModal(): void`: opens the cart modal window.
 
-    Принимает общую Модель, EventEmitter, Modal, все формы и также SuccessModal. Все это уходит в super().
+- **OrderPresenter** extends Presenter<IOrderForm, IContactsForm, SuccessModal> - presenter for connecting AppModel and all forms.
 
-    **Поля класса:**
+    **Class Constructor:**
+
+    Takes the common Model, EventEmitter, Modal, all forms, and SuccessModal and passes them to `super()`.
+
+    **Class Fields:**
 
     - `private orderDetails`: IOrderData;
     - `private formErrors`: FormErrors = {};
 
-    **Методы класса:**
+    **Class Methods:**
 
-    - `handleOpenOrderForm(): void` : открывает окно с формой заказа
-    - `handleOpenContactsForm(): void` : открывает окно с формой заказа
-    - `handleChangeInput<K extends keyof IOrderData>(): void` : подставляет значения из формы в переменную с данными заказа
-    - `validateOrder(): boolean` :проверяет, все ли нужные для заказа данные есть и передает ошибку, если чего то не хватает
-    - `handleErrors(): void` : передает тексты ошибок
-    - `handleSendOrderDetails(): void` : отправляет заказ на сервер через метод модели
-    - `handleClearShoppingList()`: вызывается методом handleSendOrderDetails() и очищает корзину товаров в модели
+    - `handleOpenOrderForm(): void`: opens the order form window.
+    - `handleOpenContactsForm(): void`: opens the
 
-## Описание событий
+ contacts form window.
+    - `handleChangeInput<K extends keyof IOrderData>(): void`: substitutes values from the form into the order data variable.
+    - `validateOrder(): boolean`: checks if all necessary order data is present and returns an error if something is missing.
+    - `handleErrors(): void`: passes error texts.
+    - `handleSendOrderDetails(): void`: sends the order to the server through the model's method.
+    - `handleClearShoppingList()`: called by `handleSendOrderDetails()` and clears the shopping cart in the model.
 
-Для контроля событий в проекте используется класс EventEmitter (класс описан выше).
+## Event Descriptions
 
-**Список событий**
+The project uses the EventEmitter class (described above) to manage events.
 
-| Событие | Триггер | Реакция |
+**Event List**
+
+| Event | Trigger | Reaction |
 | --- | --- | --- |
-| cards:fetched | разрешение промиса, который загружает карточки с сервера | cardPresenter использует загруженные карточки для отображения их в UI |
-| card:select | При нажатии на любую из карточек | Отправка в AppModel данных выбранной карточки, а также открытие модального окна с этой карточкой |
-| card:add | при нажатии на кнопку “в корзину” | добавляет элемент в корзину и обновляет список элементов корзины в модели |
-| card:remove | при нажатии на кнопку “убрать из корзины” | удаляет элемент из корзины, обновляет список элементов корзины в модели |
-| modal:open | при открытии любого модального окна | блокируется страница |
-| modal:closed | при закрытии любого модального окна | блокировка страницы снимается |
-| order:start | при нажатии кнопки “оформить” в корзине | открывается форма оформления заказа |
-| order:submit | когда первая часть формы была заполнена и нажата кнопка “далее” | открывается вторая часть формы |
-| contacts:submit | когда вторая часть формы была заполнена и нажата кнопка “оплатить” название кнопки | вызывается метод placeOrder - информация отправляется на сервер |
-| form:submit | когда информация о заказе ушла на сервер и вернулся положительный ответ | открывает successWindow |
-| order:done | при нажатии на кнопку “за новыми покупками” в success модальном окне | корзина товаров в модели очищается, а также очищается localStorage |
-| formErrors:change | при обнаружении событий при валидации | отображение ошибок в форме |
-| /^(order|contacts)\..*:change$/ | изменение любых input элементов в формах | заполнение деталей для заказа |
+| `cards:fetched` | Promise resolution that loads cards from the server | cardPresenter uses the loaded cards to display them in the UI |
+| `card:select` | Clicking on any card | Sends the selected card data to AppModel and opens the modal window with the card |
+| `card:add` | Clicking the "Add to Cart" button | Adds an item to the cart and updates the cart item list in the model |
+| `card:remove` | Clicking the "Remove from Cart" button | Removes an item from the cart, updates the cart item list in the model |
+| `modal:open` | Opening any modal window | The page is blocked |
+| `modal:closed` | Closing any modal window | The page block is removed |
+| `order:start` | Clicking the "Place Order" button in the cart | Opens the order form |
+| `order:submit` | When the first part of the form is filled out and the "Next" button is clicked | Opens the second part of the form |
+| `contacts:submit` | When the second part of the form is filled out and the "Pay" button is clicked | Calls the `placeOrder` method - information is sent to the server |
+| `form:submit` | When order information is sent to the server and a positive response is received | Opens the success window |
+| `order:done` | Clicking the "New Shopping" button in the success modal window | The shopping cart in the model is cleared, and localStorage is also cleared |
+| `formErrors:change` | Detecting errors during validation | Displays errors in the form |
+| `/^(order|contacts)\..*:change$/` | Changing any input elements in forms | Fills in the details for the order |
+
+---
